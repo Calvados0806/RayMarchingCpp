@@ -4,6 +4,42 @@
 #include <iostream>
 #include <string_view>
 #include <memory>
+#include <fstream>
+#include <iterator>
+#include <algorithm>
+
+struct ShaderSources {
+    std::string VertexShader;
+    std::string FragmentShader;
+    bool LoadStatus;
+};
+
+static ShaderSources LoadShaders(const std::string_view vertexShaderPath, const std::string_view fragmentShaderPath)
+{
+    std::ifstream istream;
+    ShaderSources result{ "", "", false };
+
+    istream.open(vertexShaderPath.data(), std::ifstream::in);
+    if (!istream) {
+        std::cerr << "LoadShaders() for path " << vertexShaderPath << " failed\n";
+        return result;
+    }
+
+    std::copy(std::istreambuf_iterator<char>(istream), std::istreambuf_iterator<char>(), std::back_inserter(result.VertexShader));
+    istream.close();
+
+    istream.open(fragmentShaderPath.data(), std::ifstream::in);
+    if (!istream) {
+        std::cerr << "LoadShaders() for path " << fragmentShaderPath << " failed\n";
+        return result;
+    }
+
+    std::copy(std::istreambuf_iterator<char>(istream), std::istreambuf_iterator<char>(), std::back_inserter(result.FragmentShader));
+    istream.close();
+
+    result.LoadStatus = true;
+    return result;
+}
 
 static unsigned int CompileShader(unsigned int type, const std::string_view source)
 {
@@ -69,6 +105,7 @@ int main(void)
 
     if (glewInit() != GLEW_OK) {
         std::cerr << "glewInit() failed\n";
+        return -1;
     }
 
     std::cout << glGetString(GL_VERSION) << std::endl;
@@ -89,29 +126,11 @@ int main(void)
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    std::string_view vertex_shader =
-        "#version 330 core\n"
-        "\n"
-        "layout(location = 0) in vec4 position;\n"
-        "layout(location = 1) in vec4 color;\n"
-        "out vec4 vertexColor;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "   gl_Position = position;\n"
-        "   vertexColor = color;\n"
-        "}\n";
-    std::string_view fragment_shader =
-        "#version 330 core\n"
-        "\n"
-        "in vec4 vertexColor;\n"
-        "out vec4 color;\n"
-        "\n"
-        "void main()\n"
-        "{\n"
-        "   color = vertexColor;\n"
-        "}\n";
-    unsigned int shader = CreateShader(vertex_shader, fragment_shader);
+    ShaderSources shaders = LoadShaders("res/shaders/Vertex.shader", "res/shaders/Fragment.shader");
+    if (!shaders.LoadStatus) {
+        return -1;
+    }
+    unsigned int shader = CreateShader(shaders.VertexShader, shaders.FragmentShader);
     glUseProgram(shader);
 
     /* Loop until the user closes the window */
@@ -129,6 +148,8 @@ int main(void)
         glfwPollEvents();
     }
 
+    glDeleteProgram(shader);
+
     glfwTerminate();
-	return(0);
+    return(0);
 }
