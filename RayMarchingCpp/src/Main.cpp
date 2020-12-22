@@ -92,7 +92,7 @@ int main(void)
     }
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(640, 480, "Ray Marching", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -110,16 +110,24 @@ int main(void)
 
     std::cout << glGetString(GL_VERSION) << std::endl;
 
-    float vertices[15] = {
-        -0.5f, -0.5f, 1.0f, 0.0f, 0.0f,
-         0.0f,  0.5f, 0.0f, 1.0f, 0.0f,
-         0.5f, -0.5f, 0.0f, 0.0f, 1.0f
+    float vertices[] = {
+        -1.0f, -1.0f, 1.0f, 0.0f, 0.0f,
+         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+         1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+        -1.0f,  1.0f, 1.0f, 1.0f, 0.0f,
     };
+
+    unsigned int indices[] = { 0, 1, 2, 2, 3, 0 };
 
     unsigned int vertex_buffer;
     glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof vertices, &vertices, GL_STATIC_DRAW);
+
+    unsigned int index_buffer;
+    glGenBuffers(1, &index_buffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof indices, &indices, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void *)0);
     glEnableVertexAttribArray(0);
@@ -139,7 +147,7 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawElements(GL_TRIANGLES, std::size(indices), GL_UNSIGNED_INT, nullptr);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
