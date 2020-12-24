@@ -126,8 +126,11 @@ int main(void)
         return -1;
     }
 
+    const float window_width = 640.0f;
+    const float window_height = 480.0f;
+
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Ray Marching", NULL, NULL);
+    window = glfwCreateWindow(window_width, window_height, "Ray Marching", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -138,6 +141,8 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
+    glfwSwapInterval(0);
+
     if (glewInit() != GLEW_OK) {
         std::cerr << "glewInit() failed\n";
         return -1;
@@ -146,10 +151,10 @@ int main(void)
     std::cout << glGetString(GL_VERSION) << std::endl;
 
     float vertices[] = {
-        -1.0f, -1.0f, 1.0f, 0.0f, 0.0f,
-         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-         1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-        -1.0f,  1.0f, 1.0f, 1.0f, 0.0f,
+        -1.0f, -1.0f,
+         1.0f, -1.0f,
+         1.0f,  1.0f,
+        -1.0f,  1.0f
     };
 
     unsigned int indices[] = { 0, 1, 2, 2, 3, 0 };
@@ -164,10 +169,8 @@ int main(void)
     GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer));
     GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof indices, &indices, GL_STATIC_DRAW));
 
-    GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void*)0));
+    GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (const void*)0));
     GLCall(glEnableVertexAttribArray(0));
-    GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (const void*)(2 * sizeof(float))));
-    GLCall(glEnableVertexAttribArray(1));
 
     ShaderSources shaders = LoadShaders("res/shaders/Vertex.shader", "res/shaders/Fragment.shader");
     if (!shaders.LoadStatus) {
@@ -175,6 +178,10 @@ int main(void)
     }
     unsigned int shader = CreateShader(shaders.VertexShader, shaders.FragmentShader);
     GLCall(glUseProgram(shader));
+
+    GLCall(int resolution_location = glGetUniformLocation(shader, "u_Resolution"));
+    ASSERT(resolution_location != -1);
+    GLCall(glUniform2f(resolution_location, window_width, window_height));
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
