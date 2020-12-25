@@ -4,15 +4,11 @@
 #include "VertexArray.h"
 #include "VertexLayout.h"
 #include "ShaderProgram.h"
+#include "Renderer.h"
 
 #include <GLFW/glfw3.h>
 
 #include <iostream>
-#include <string_view>
-#include <memory>
-#include <fstream>
-#include <iterator>
-#include <algorithm>
 
 int main(void)
 {
@@ -73,13 +69,15 @@ int main(void)
     shader.Bind();
     shader.SetUniform2f("u_Resolution", window_width, window_height);
 
+    OpenGL::Renderer renderer;
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
+        renderer.Clear();
 
-        GLCall(glDrawElements(GL_TRIANGLES, ibo.Count(), GL_UNSIGNED_INT, nullptr));
+        renderer.Draw(vao, ibo, shader);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
