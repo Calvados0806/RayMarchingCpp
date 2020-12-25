@@ -126,6 +126,10 @@ int main(void)
         return -1;
     }
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     const float window_width = 640.0f;
     const float window_height = 480.0f;
 
@@ -158,6 +162,10 @@ int main(void)
     };
 
     unsigned int indices[] = { 0, 1, 2, 2, 3, 0 };
+
+    unsigned int vertex_array;
+    GLCall(glGenVertexArrays(1, &vertex_array));
+    GLCall(glBindVertexArray(vertex_array));
 
     unsigned int vertex_buffer;
     GLCall(glGenBuffers(1, &vertex_buffer));
