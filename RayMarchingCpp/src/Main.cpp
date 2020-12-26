@@ -1,96 +1,81 @@
-#include "GLCore.h"
-#include "VertexBuffer.h"
-#include "IndexBuffer.h"
-#include "VertexArray.h"
-#include "VertexLayout.h"
-#include "ShaderProgram.h"
-#include "Renderer.h"
+#include "OpenGL/GLCore.h"
+#include "OpenGL/VertexBuffer.h"
+#include "OpenGL/IndexBuffer.h"
+#include "OpenGL/VertexArray.h"
+#include "OpenGL/VertexLayout.h"
+#include "OpenGL/ShaderProgram.h"
+#include "OpenGL/Renderer.h"
+#include "Window.h"
 
-#include <GLFW/glfw3.h>
+class RayMarchingWindow : public Window {
+public:
+    using Window::Window;
 
-#include <iostream>
+    virtual ~RayMarchingWindow()
+    {
+        shader->Delete();
+        ibo->Delete();
+        vbo->Delete();
+        vao->Delete();
+    }
+protected:
+    virtual bool OnCreate() override
+    {
+        try {
+            mVertices = {
+                -1.0f, -1.0f,
+                 1.0f, -1.0f,
+                 1.0f,  1.0f,
+                -1.0f,  1.0f
+            };
+            mIndices = { 0, 1, 2, 2, 3, 0 };
+            vao = std::make_unique<OpenGL::VertexArray>();
+            vbo = std::make_unique<OpenGL::VertexBuffer>(mVertices.data(), mVertices.size() * sizeof(float));
+
+            OpenGL::VertexLayout layout;
+            layout.AddAttribute<float>(2);
+            vao->LinkLayout(*vbo, layout);
+
+            ibo = std::make_unique<OpenGL::IndexBuffer>(mIndices.data(), mIndices.size());
+
+            shader = std::make_unique<OpenGL::ShaderProgram>("res/shaders/Vertex.shader", "res/shaders/Fragment.shader");
+            shader->Bind();
+            shader->SetUniform2f("u_Resolution", static_cast<float>(mWidth), static_cast<float>(mHeight));
+
+            return true;
+        }
+        catch (std::exception & ex) {
+            std::cerr << ex.what() << std::endl;
+            return false;
+        }
+    }
+
+    virtual bool OnUpdate(FrameDuration elapsedTime) override
+    {
+        (void)elapsedTime;
+        try {
+            mRenderer.Draw(*vao, *ibo, *shader);
+            return true;
+        }
+        catch (std::exception & ex) {
+            std::cerr << ex.what() << std::endl;
+            return false;
+        }
+    }
+private:
+    std::vector<float> mVertices;
+    std::vector<uint32_t> mIndices;
+
+    std::unique_ptr<OpenGL::VertexArray> vao;
+    std::unique_ptr<OpenGL::VertexBuffer> vbo;
+    std::unique_ptr<OpenGL::IndexBuffer> ibo;
+    std::unique_ptr<OpenGL::ShaderProgram> shader;
+};
 
 int main(void)
 {
-    GLFWwindow* window;
+    std::unique_ptr<Window> window = Window::Create<RayMarchingWindow>("Ray Marching", 1280, 720);
+    window->Run();
 
-    /* Initialize the library */
-    if (!glfwInit()) {
-        std::cerr << "glfwInit() failed\n";
-        return -1;
-    }
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    const float window_width = 640.0f;
-    const float window_height = 480.0f;
-
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(window_width, window_height, "Ray Marching", NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        std::cerr << "glfwCreateWindow() failed\n";
-        return -1;
-    }
-
-    /* Make the window's context current */
-    glfwMakeContextCurrent(window);
-
-    glfwSwapInterval(0);
-
-    if (glewInit() != GLEW_OK) {
-        std::cerr << "glewInit() failed\n";
-        return -1;
-    }
-
-    std::cout << glGetString(GL_VERSION) << std::endl;
-
-    float vertices[] = {
-        -1.0f, -1.0f,
-         1.0f, -1.0f,
-         1.0f,  1.0f,
-        -1.0f,  1.0f
-    };
-    uint32_t indices[] = { 0, 1, 2, 2, 3, 0 };
-
-    OpenGL::VertexArray vao;
-    OpenGL::VertexBuffer vbo(vertices, sizeof vertices);
-    
-    OpenGL::VertexLayout layout;
-    layout.AddAttribute<float>(2);
-    vao.LinkLayout(vbo, layout);
-
-    OpenGL::IndexBuffer ibo(indices, std::size(indices));
-
-    OpenGL::ShaderProgram shader("res/shaders/Vertex.shader", "res/shaders/Fragment.shader");
-    shader.Bind();
-    shader.SetUniform2f("u_Resolution", window_width, window_height);
-
-    OpenGL::Renderer renderer;
-
-    /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
-    {
-        /* Render here */
-        renderer.Clear();
-
-        renderer.Draw(vao, ibo, shader);
-
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
-
-        /* Poll for and process events */
-        glfwPollEvents();
-    }
-
-    shader.Delete();
-    ibo.Delete();
-    vbo.Delete();
-    vao.Delete();
-
-    glfwTerminate();
     return(0);
 }
