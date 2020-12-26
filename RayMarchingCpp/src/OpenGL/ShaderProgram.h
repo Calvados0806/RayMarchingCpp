@@ -6,6 +6,7 @@ namespace OpenGL {
 
     class ShaderProgram {
     public:
+        ShaderProgram() = default;
         ShaderProgram(const std::string_view vertexShaderPath, const std::string_view fragmentShaderPath);
 
         void Bind() const;

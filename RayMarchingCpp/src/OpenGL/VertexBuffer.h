@@ -6,6 +6,7 @@ namespace OpenGL {
 
     class VertexBuffer {
     public:
+        VertexBuffer() = default;
         VertexBuffer(const void* data, size_t size);
 
         void Bind() const;

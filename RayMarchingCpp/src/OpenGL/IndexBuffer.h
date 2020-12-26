@@ -7,6 +7,7 @@ namespace OpenGL {
 
     class IndexBuffer {
     public:
+        IndexBuffer() = default;
         IndexBuffer(const uint32_t* data, size_t count);
 
         void Bind() const;
