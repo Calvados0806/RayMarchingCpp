@@ -54,6 +54,27 @@ protected:
         mRenderer.Draw(vao, ibo, shader);
         return true;
     }
+
+    virtual void OnKeyEvent(int key, int action, int mods) override
+    {
+        const char* action_str;
+        switch (action)
+        {
+        case GLFW_PRESS:
+            action_str = "PRESS";
+            break;
+        case GLFW_RELEASE:
+            action_str = "RELEASE";
+            break;
+        case GLFW_REPEAT:
+            action_str = "REPEAT";
+            break;
+        default:
+            action_str = "UNKNOWN";
+            break;
+        }
+        std::cout << action_str << " event for key: " << key << std::endl;
+    }
 private:
     std::vector<float> mVertices;
     std::vector<uint32_t> mIndices;

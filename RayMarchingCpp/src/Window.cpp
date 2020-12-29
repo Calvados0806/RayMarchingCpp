@@ -5,10 +5,16 @@
 Window::Window(GLFWwindow *window, const std::string& title, unsigned int width, unsigned int height) :
     mWindow(window), mRenderer(), mWidth(width), mHeight(height), mTitle(title)
 {
+    glfwSetWindowUserPointer(mWindow, this);
+    glfwSetKeyCallback(mWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+        Window* w = static_cast<Window*>(glfwGetWindowUserPointer(window));
+        w->OnKeyEvent(key, action, mods);
+    });
 }
 
 Window::~Window()
 {
+    glfwDestroyWindow(mWindow);
     glfwTerminate();
 }
 
@@ -42,4 +48,11 @@ bool Window::OnUpdate(FrameDuration elapsedTime)
     (void)elapsedTime;
     std::cerr << "Override Window::OnUpdate method\n";
     return false;
+}
+
+void Window::OnKeyEvent(int key, int action, int mods)
+{
+    (void)key;
+    (void)action;
+    (void)mods;
 }

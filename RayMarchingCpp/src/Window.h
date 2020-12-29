@@ -48,6 +48,8 @@ public:
         }
         return std::unique_ptr<Window>(new WindowType(window, title, width, height));
     }
+
+    virtual void OnKeyEvent(int key, int action, int mods);
 protected:
     virtual bool OnCreate();
     virtual bool OnUpdate(FrameDuration elapsedTime);
