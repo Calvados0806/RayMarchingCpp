@@ -6,6 +6,7 @@
 #include "OpenGL/ShaderProgram.h"
 #include "OpenGL/Renderer.h"
 #include "Window.h"
+#include "Math/Math.h"
 
 class RayMarchingWindow : public Window {
     using Window::Window;
