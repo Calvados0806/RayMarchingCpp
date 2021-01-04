@@ -32,18 +32,42 @@ void ShaderProgram::Delete() const
     GLCall(glDeleteProgram(mOpenGLID));
 }
 
+void OpenGL::ShaderProgram::SetUniform1f(const std::string_view name, float v1)
+{
+    int location = GetUniformLocation(name);
+    GLCall(glUniform1f(location, v1));
+}
+
 void ShaderProgram::SetUniform2f(const std::string_view name, float v1, float v2)
 {
     int location = GetUniformLocation(name);
     GLCall(glUniform2f(location, v1, v2));
 }
 
-int ShaderProgram::GetUniformLocation(const std::string_view name)
+void OpenGL::ShaderProgram::SetUniform3f(const std::string_view name, float v1, float v2, float v3)
 {
+    int location = GetUniformLocation(name);
+    GLCall(glUniform3f(location, v1, v2, v3));
+}
+
+void OpenGL::ShaderProgram::SetUniform4f(const std::string_view name, float v1, float v2, float v3, float v4)
+{
+    int location = GetUniformLocation(name);
+    GLCall(glUniform4f(location, v1, v2, v3, v4));
+}
+
+int ShaderProgram::GetUniformLocation(const std::string_view name) const
+{
+    auto iter = mUniformCache.find(name.data());
+    if (iter != mUniformCache.end()) {
+        return iter->second;
+    }
     GLCall(int location = glGetUniformLocation(mOpenGLID, name.data()));
+    std::cout << "[Info] OpenGL::ShaderProgram::GetUniformLocation: Getting uniform location (" << name << ") from glGetUniformLocation call\n";
     if (location == -1) {
         std::cout << "[Warning] OpenGL::ShaderProgram::GetUniformLocation for name '" << name << "' failed\n";
     }
+    mUniformCache.insert({ name.data(), location });
     return location;
 }
 

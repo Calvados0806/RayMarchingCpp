@@ -51,30 +51,56 @@ protected:
 
     virtual bool OnUpdate(FrameDuration elapsedTime) override
     {
-        (void)elapsedTime;
+        float frameMoveVelocity = sMoveVelocity * elapsedTime.count();
+        Math::Vec2 direction = (mDirection * frameMoveVelocity);
+
+        mSphereCoords = mSphereCoords + direction;
+        mPlaneCoord += direction.y();
+        mLightPos = mLightPos + direction;
+
+        shader.Bind();
+        shader.SetUniform4f("u_SphereObj", mSphereCoords.x(), mSphereCoords.y(), mSphereCoords.z(), mSphereCoords.w());
+        shader.SetUniform1f("u_PlaneObj", mPlaneCoord);
+        shader.SetUniform3f("u_LightPos", mLightPos.x(), mLightPos.y(), mLightPos.z());
         mRenderer.Draw(vao, ibo, shader);
+
         return true;
     }
 
     virtual void OnKeyEvent(int key, int action, int mods) override
     {
-        const char* action_str;
         switch (action)
         {
-        case GLFW_PRESS:
-            action_str = "PRESS";
-            break;
-        case GLFW_RELEASE:
-            action_str = "RELEASE";
-            break;
-        case GLFW_REPEAT:
-            action_str = "REPEAT";
-            break;
-        default:
-            action_str = "UNKNOWN";
+        case GLFW_PRESS: {
+            if (key == GLFW_KEY_D) {
+                mDirection.x() = -1.0f;
+            }
+            else if (key == GLFW_KEY_A) {
+                mDirection.x() = 1.0f;
+            }
+            else if (key == GLFW_KEY_W) {
+                mDirection.y() = -1.0f;
+            }
+            else if (key == GLFW_KEY_S) {
+                mDirection.y() = 1.0f;
+            }
+
             break;
         }
-        std::cout << action_str << " event for key: " << key << std::endl;
+        case GLFW_RELEASE: {
+            if (key == GLFW_KEY_D || key == GLFW_KEY_A) {
+                mDirection.x() = 0.0f;
+            }
+            else if (key == GLFW_KEY_W || key == GLFW_KEY_S) {
+                mDirection.y() = 0.0f;
+            }
+            break;
+        }
+        case GLFW_REPEAT:
+            break;
+        default:
+            break;
+        }
     }
 private:
     std::vector<float> mVertices;
@@ -84,6 +110,13 @@ private:
     OpenGL::VertexBuffer vbo;
     OpenGL::IndexBuffer ibo;
     OpenGL::ShaderProgram shader;
+
+    Math::Vec4 mSphereCoords = { 0.0f, 1.0f, 6.0f, 1.0f };
+    float mPlaneCoord = 0.0f;
+    Math::Vec3 mLightPos = { 0.0f, 5.0f, 6.0f };
+
+    Math::Vec2 mDirection = { 0.0f, 0.0f };
+    float sMoveVelocity = 7.5f;
 };
 
 int main(void)

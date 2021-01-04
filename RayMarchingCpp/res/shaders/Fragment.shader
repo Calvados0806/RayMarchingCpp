@@ -6,16 +6,16 @@
 out vec4 color;
 
 uniform vec2 u_Resolution;
+// sphere coordinates x, y, z and radius w
+uniform vec4 u_SphereObj;
+uniform float u_PlaneObj;
+uniform vec3 u_LightPos;
 
 float GetSceneDistance(vec3 cameraPos)
 {
-    // shere coordinates x, y, z and radius w
-    vec4 sphere = vec4(0, 1, 6, 1);
+    float sphereDist = length(cameraPos - u_SphereObj.xyz) - u_SphereObj.w;
 
-    float sphereDist = length(cameraPos - sphere.xyz) - sphere.w;
-    float planeDist = cameraPos.y;
-
-    return min(sphereDist, planeDist);
+    return min(sphereDist, abs(cameraPos.y - u_PlaneObj));
 }
 
 float RayMarch(vec3 ro, vec3 rd, out vec3 pointPos)
@@ -53,7 +53,7 @@ vec3 GetNormal(vec3 pointPos)
 
 float GetLight(vec3 pointPos)
 {
-    vec3 lightPos = vec3(0, 5, 6);
+    vec3 lightPos = u_LightPos; // vec3(0, 5, 6);
     lightPos.xz += vec2(sin(40), cos(40)) * 3.0;
     vec3 lightDir = normalize(lightPos - pointPos);
     vec3 pointNormal = GetNormal(pointPos);
