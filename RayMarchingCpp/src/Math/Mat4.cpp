@@ -128,6 +128,56 @@ Vec4 Math::Mat4::Dot(const Vec4& vec) const
     );
 }
 
+Mat4 Math::Mat4::CreateTranslation(float dx, float dy, float dz)
+{
+    return Mat4({
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        dx,   dy,   dz,   1.0f
+    });
+}
+
+Mat4 Math::Mat4::CreateRotationX(float angle)
+{
+    return Mat4({
+        1.0f,  0.0f,            0.0f,            0.0f,
+        0.0f,  std::cos(angle), std::sin(angle), 0.0f,
+        0.0f, -std::sin(angle), std::cos(angle), 0.0f,
+        0.0f,  0.0f,            0.0f,            1.0f
+    });
+}
+
+Mat4 Math::Mat4::CreateRotationY(float angle)
+{
+    return Mat4({
+        std::cos(angle), 0.0f, -std::sin(angle), 0.0f,
+        0.0f,            1.0f,  0.0f,            0.0f,
+        std::sin(angle), 0.0f,  std::cos(angle), 0.0f,
+        0.0f,            0.0f,  0.0f,            1.0f
+    });
+}
+
+Mat4 Math::Mat4::CreateRotationZ(float angle)
+{
+    return Mat4({
+         std::cos(angle), std::sin(angle), 0.0f, 0.0f,
+        -std::sin(angle), std::cos(angle), 0.0f, 0.0f,
+         0.0f,            0.0f,            1.0f, 0.0f,
+         0.0f,            0.0f,            0.0f, 1.0f
+    });
+}
+
+Mat4 Math::Mat4::CreateScale(float sx, float sy, float sz)
+{
+    return Mat4({
+        sx,   0.0f, 0.0f, 0.0f,
+        0.0f, sy,   0.0f, 0.0f,
+        0.0f, 0.0f, sz,   0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f
+    });
+}
+
 Mat4 Mat4::operator/(const Mat4& other) const
 {
     return Mat4({

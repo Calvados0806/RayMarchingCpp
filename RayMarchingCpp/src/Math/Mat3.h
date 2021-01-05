@@ -9,7 +9,7 @@ namespace Math {
     class Mat3 {
     public:
         Mat3();
-        Mat3(float value);
+        explicit Mat3(float value);
         Mat3(std::initializer_list<float> list);
         Mat3(std::initializer_list<Vec3> list);
 

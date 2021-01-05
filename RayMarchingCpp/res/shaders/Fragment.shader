@@ -53,8 +53,7 @@ vec3 GetNormal(vec3 pointPos)
 
 float GetLight(vec3 pointPos)
 {
-    vec3 lightPos = u_LightPos; // vec3(0, 5, 6);
-    lightPos.xz += vec2(sin(40), cos(40)) * 3.0;
+    vec3 lightPos = u_LightPos;
     vec3 lightDir = normalize(lightPos - pointPos);
     vec3 pointNormal = GetNormal(pointPos);
 

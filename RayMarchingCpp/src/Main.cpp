@@ -8,6 +8,8 @@
 #include "Window.h"
 #include "Math/Math.h"
 
+#include <functional>
+
 class RayMarchingWindow : public Window {
     using Window::Window;
 public:
@@ -19,6 +21,58 @@ public:
         vao.Delete();
     }
 protected:
+    enum class Coord { X, Y, Z };
+
+    void UpdateTranslation(Coord coord, float shift)
+    {
+        mTranslation[static_cast<unsigned int>(coord)] = shift;
+    }
+
+    void UpdateRotation(Coord coord, float angle)
+    {
+        mRotation[static_cast<unsigned int>(coord)] = angle;
+    }
+
+    void UpdateYRotation(int action, float angle)
+    {
+        if (action == GLFW_PRESS) {
+            UpdateRotation(Coord::Y, angle);
+        }
+        else if (action == GLFW_RELEASE) {
+            UpdateRotation(Coord::Y, 0.0f);
+        }
+    }
+
+    void UpdateXTranslation(int action, float shift)
+    {
+        if (action == GLFW_PRESS) {
+            UpdateTranslation(Coord::X, shift);
+        }
+        else if (action == GLFW_RELEASE) {
+            UpdateTranslation(Coord::X, 0.0f);
+        }
+    }
+
+    void UpdateYTranslation(int action, float shift)
+    {
+        if (action == GLFW_PRESS) {
+            UpdateTranslation(Coord::Y, shift);
+        }
+        else if (action == GLFW_RELEASE) {
+            UpdateTranslation(Coord::Y, 0.0f);
+        }
+    }
+
+    void UpdateZTranslation(int action, float shift)
+    {
+        if (action == GLFW_PRESS) {
+            UpdateTranslation(Coord::Z, shift);
+        }
+        else if (action == GLFW_RELEASE) {
+            UpdateTranslation(Coord::Z, 0.0f);
+        }
+    }
+
     virtual bool OnCreate() override
     {
         try {
@@ -41,6 +95,36 @@ protected:
             shader.Bind();
             shader.SetUniform2f("u_Resolution", static_cast<float>(mWidth), static_cast<float>(mHeight));
 
+            mLightPos.x() += std::sin(40) * 3;
+            mLightPos.y() += std::cos(40) * 3;
+
+            mKeyHandlers = {
+                {GLFW_KEY_D, [this](int action, int mods) {
+                    UpdateXTranslation(action, -mMoveVelocity);
+                }},
+                {GLFW_KEY_A, [this](int action, int mods) {
+                    UpdateXTranslation(action, mMoveVelocity);
+                }},
+                {GLFW_KEY_LEFT_SHIFT, [this](int action, int mods) {
+                    UpdateYTranslation(action, -mMoveVelocity);
+                }},
+                {GLFW_KEY_LEFT_CONTROL, [this](int action, int mods) {
+                    UpdateYTranslation(action, mMoveVelocity);
+                }},
+                {GLFW_KEY_W, [this](int action, int mods) {
+                    UpdateZTranslation(action, -mMoveVelocity);
+                }},
+                {GLFW_KEY_S, [this](int action, int mods) {
+                    UpdateZTranslation(action, mMoveVelocity);
+                }},
+                {GLFW_KEY_LEFT, [this](int action, int mods) {
+                    UpdateYRotation(action, sPI / 2);
+                }},
+                {GLFW_KEY_RIGHT, [this](int action, int mods) {
+                    UpdateYRotation(action, -sPI / 2);
+                }},
+            };
+
             return true;
         }
         catch (std::exception & ex) {
@@ -51,16 +135,20 @@ protected:
 
     virtual bool OnUpdate(FrameDuration elapsedTime) override
     {
-        float frameMoveVelocity = sMoveVelocity * elapsedTime.count();
-        Math::Vec2 direction = (mDirection * frameMoveVelocity);
+        float elapsed = elapsedTime.count();
 
-        mSphereCoords = mSphereCoords + direction;
-        mPlaneCoord += direction.y();
-        mLightPos = mLightPos + direction;
+        Math::Mat4 viewMatrix = Math::Mat4::CreateTranslation(mTranslation.x() * elapsed,
+                                                              mTranslation.y() * elapsed,
+                                                              mTranslation.z() * elapsed);
+        viewMatrix = viewMatrix.Dot(Math::Mat4::CreateRotationY(mRotation.y() * elapsed));
+
+        mSphereCoords = mSphereCoords.Dot(viewMatrix);
+        mLightPos = mLightPos.Dot(viewMatrix);
+        mPlaneCoord = mPlaneCoord.Dot(viewMatrix);
 
         shader.Bind();
-        shader.SetUniform4f("u_SphereObj", mSphereCoords.x(), mSphereCoords.y(), mSphereCoords.z(), mSphereCoords.w());
-        shader.SetUniform1f("u_PlaneObj", mPlaneCoord);
+        shader.SetUniform4f("u_SphereObj", mSphereCoords.x(), mSphereCoords.y(), mSphereCoords.z(), 1.0f);
+        shader.SetUniform1f("u_PlaneObj", mPlaneCoord.y());
         shader.SetUniform3f("u_LightPos", mLightPos.x(), mLightPos.y(), mLightPos.z());
         mRenderer.Draw(vao, ibo, shader);
 
@@ -69,40 +157,15 @@ protected:
 
     virtual void OnKeyEvent(int key, int action, int mods) override
     {
-        switch (action)
-        {
-        case GLFW_PRESS: {
-            if (key == GLFW_KEY_D) {
-                mDirection.x() = -1.0f;
-            }
-            else if (key == GLFW_KEY_A) {
-                mDirection.x() = 1.0f;
-            }
-            else if (key == GLFW_KEY_W) {
-                mDirection.y() = -1.0f;
-            }
-            else if (key == GLFW_KEY_S) {
-                mDirection.y() = 1.0f;
-            }
-
-            break;
+        auto iter = mKeyHandlers.find(key);
+        if (iter != mKeyHandlers.end()) {
+            iter->second(action, mods);
         }
-        case GLFW_RELEASE: {
-            if (key == GLFW_KEY_D || key == GLFW_KEY_A) {
-                mDirection.x() = 0.0f;
-            }
-            else if (key == GLFW_KEY_W || key == GLFW_KEY_S) {
-                mDirection.y() = 0.0f;
-            }
-            break;
-        }
-        case GLFW_REPEAT:
-            break;
-        default:
-            break;
-        }
+        return;
     }
 private:
+    static constexpr double sPI = 3.14159265358979323846;
+
     std::vector<float> mVertices;
     std::vector<uint32_t> mIndices;
 
@@ -111,12 +174,15 @@ private:
     OpenGL::IndexBuffer ibo;
     OpenGL::ShaderProgram shader;
 
-    Math::Vec4 mSphereCoords = { 0.0f, 1.0f, 6.0f, 1.0f };
-    float mPlaneCoord = 0.0f;
-    Math::Vec3 mLightPos = { 0.0f, 5.0f, 6.0f };
+    std::unordered_map<int, std::function<void(int, int)>> mKeyHandlers;
 
-    Math::Vec2 mDirection = { 0.0f, 0.0f };
-    float sMoveVelocity = 7.5f;
+    Math::Vec4 mSphereCoords = { 0.0f, 1.0f, 6.0f, 1.0f };
+    Math::Vec4 mPlaneCoord   = { 0.0f,  0.0f,  0.0f, 1.0f };
+    Math::Vec4 mLightPos     = { 0.0f, 5.0f, 6.0f, 1.0f };
+
+    Math::Vec4 mTranslation = { 0.0f, 0.0f, 0.0f, 0.0f };
+    Math::Vec4 mRotation    = { 0.0f, 0.0f, 0.0f, 0.0f };
+    float mMoveVelocity     = 7.5f;
 };
 
 int main(void)

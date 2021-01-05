@@ -9,7 +9,7 @@ namespace Math {
     class Mat4 {
     public:
         Mat4();
-        Mat4(float value);
+        explicit Mat4(float value);
         Mat4(std::initializer_list<float> list);
         Mat4(std::initializer_list<Vec4> list);
 
@@ -36,6 +36,12 @@ namespace Math {
         Mat4 Transpose() const;
         Mat4 Dot(const Mat4& mat) const;
         Vec4 Dot(const Vec4& vec) const;
+
+        static Mat4 CreateTranslation(float dx, float dy, float dz);
+        static Mat4 CreateRotationX(float angle);
+        static Mat4 CreateRotationY(float angle);
+        static Mat4 CreateRotationZ(float angle);
+        static Mat4 CreateScale(float sx, float sy, float sz);
     private:
         Vec4 mData[4];
     };
