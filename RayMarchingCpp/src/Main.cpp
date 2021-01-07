@@ -177,7 +177,7 @@ private:
     std::unordered_map<int, std::function<void(int, int)>> mKeyHandlers;
 
     Math::Vec4 mSphereCoords = { 0.0f, 1.0f, 6.0f, 1.0f };
-    Math::Vec4 mPlaneCoord   = { 0.0f,  0.0f,  0.0f, 1.0f };
+    Math::Vec4 mPlaneCoord   = { 0.0f, 0.0f, 0.0f, 1.0f };
     Math::Vec4 mLightPos     = { 0.0f, 5.0f, 6.0f, 1.0f };
 
     Math::Vec4 mTranslation = { 0.0f, 0.0f, 0.0f, 0.0f };

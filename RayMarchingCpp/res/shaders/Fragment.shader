@@ -1,7 +1,7 @@
 #version 330 core
 #define MAX_STEPS 100
-#define MAX_DISTANCE 100.0
-#define SURFACE_DISTANCE 0.01
+#define MAX_DISTANCE 1000.0
+#define SURFACE_DISTANCE 0.001
 
 out vec4 color;
 
@@ -11,11 +11,34 @@ uniform vec4 u_SphereObj;
 uniform float u_PlaneObj;
 uniform vec3 u_LightPos;
 
+const int kObjects = 2;
+float gDistances[kObjects];
+
+float GetMin()
+{
+    float res = gDistances[0];
+    for (int i = 1; i < kObjects; i++) {
+        res = min(res, gDistances[i]);
+    }
+    return res;
+}
+
+float SphereDist(vec3 cameraPos)
+{
+    return length(cameraPos - u_SphereObj.xyz) - u_SphereObj.w;
+}
+
+float PlaneDist(vec3 cameraPos)
+{
+    return abs(cameraPos.y - u_PlaneObj);
+}
+
 float GetSceneDistance(vec3 cameraPos)
 {
-    float sphereDist = length(cameraPos - u_SphereObj.xyz) - u_SphereObj.w;
+    gDistances[0] = SphereDist(cameraPos);
+    gDistances[1] = PlaneDist(cameraPos);
 
-    return min(sphereDist, abs(cameraPos.y - u_PlaneObj));
+    return GetMin();
 }
 
 float RayMarch(vec3 ro, vec3 rd, out vec3 pointPos)
@@ -43,9 +66,9 @@ vec3 GetNormal(vec3 pointPos)
     float dist = GetSceneDistance(pointPos);
 
     vec3 normal = dist - vec3(
-        GetSceneDistance(pointPos - vec3(0.01, 0, 0)),
-        GetSceneDistance(pointPos - vec3(0, 0.01, 0)),
-        GetSceneDistance(pointPos - vec3(0, 0, 0.01))
+        GetSceneDistance(pointPos - vec3(SURFACE_DISTANCE, 0, 0)),
+        GetSceneDistance(pointPos - vec3(0, SURFACE_DISTANCE, 0)),
+        GetSceneDistance(pointPos - vec3(0, 0, SURFACE_DISTANCE))
     );
 
     return normalize(normal);
