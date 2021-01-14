@@ -75,62 +75,63 @@ protected:
 
     virtual bool OnCreate() override
     {
-        try {
-            mVertices = {
-                -1.0f, -1.0f,
-                 1.0f, -1.0f,
-                 1.0f,  1.0f,
-                -1.0f,  1.0f
-            };
-            mIndices = { 0, 1, 2, 2, 3, 0 };
-            vbo = OpenGL::VertexBuffer(mVertices.data(), mVertices.size() * sizeof(float));
+        mVertices = {
+            -1.0f, -1.0f,
+             1.0f, -1.0f,
+             1.0f,  1.0f,
+            -1.0f,  1.0f
+        };
+        mIndices = { 0, 1, 2, 2, 3, 0 };
+        vbo = OpenGL::VertexBuffer(mVertices.data(), mVertices.size() * sizeof(float));
 
-            OpenGL::VertexLayout layout;
-            layout.AddAttribute<float>(2);
-            vao.LinkLayout(vbo, layout);
+        OpenGL::VertexLayout layout;
+        layout.AddAttribute<float>(2);
+        vao.LinkLayout(vbo, layout);
 
-            ibo = OpenGL::IndexBuffer(mIndices.data(), mIndices.size());
+        ibo = OpenGL::IndexBuffer(mIndices.data(), mIndices.size());
 
-            shader = OpenGL::ShaderProgram("res/shaders/Vertex.shader", "res/shaders/Fragment.shader");
-            shader.Bind();
-            shader.SetUniform2f("u_Resolution", static_cast<float>(mWidth), static_cast<float>(mHeight));
+        std::shared_ptr<OpenGL::ShaderProgram> shader_ptr = 
+            OpenGL::ShaderProgram::LoadFromFiles("res/shaders/Vertex.shader", "res/shaders/Fragment.shader");
 
-            mLightPos.x() += std::sin(40) * 3;
-            mLightPos.y() += std::cos(40) * 3;
-
-            mKeyHandlers = {
-                {GLFW_KEY_D, [this](int action, int mods) {
-                    UpdateXTranslation(action, -mMoveVelocity);
-                }},
-                {GLFW_KEY_A, [this](int action, int mods) {
-                    UpdateXTranslation(action, mMoveVelocity);
-                }},
-                {GLFW_KEY_LEFT_SHIFT, [this](int action, int mods) {
-                    UpdateYTranslation(action, -mMoveVelocity);
-                }},
-                {GLFW_KEY_LEFT_CONTROL, [this](int action, int mods) {
-                    UpdateYTranslation(action, mMoveVelocity);
-                }},
-                {GLFW_KEY_W, [this](int action, int mods) {
-                    UpdateZTranslation(action, -mMoveVelocity);
-                }},
-                {GLFW_KEY_S, [this](int action, int mods) {
-                    UpdateZTranslation(action, mMoveVelocity);
-                }},
-                {GLFW_KEY_LEFT, [this](int action, int mods) {
-                    UpdateYRotation(action, sPI / 2);
-                }},
-                {GLFW_KEY_RIGHT, [this](int action, int mods) {
-                    UpdateYRotation(action, -sPI / 2);
-                }},
-            };
-
-            return true;
-        }
-        catch (std::exception & ex) {
-            std::cerr << ex.what() << std::endl;
+        if (!shader_ptr) {
             return false;
         }
+
+        shader = *shader_ptr;
+        shader.Bind();
+        shader.SetUniform2f("u_Resolution", static_cast<float>(mWidth), static_cast<float>(mHeight));
+
+        mLightPos.x() += std::sin(40) * 3;
+        mLightPos.y() += std::cos(40) * 3;
+
+        mKeyHandlers = {
+            {GLFW_KEY_D, [this](int action, int mods) {
+                UpdateXTranslation(action, -mMoveVelocity);
+            }},
+            {GLFW_KEY_A, [this](int action, int mods) {
+                UpdateXTranslation(action, mMoveVelocity);
+            }},
+            {GLFW_KEY_LEFT_SHIFT, [this](int action, int mods) {
+                UpdateYTranslation(action, -mMoveVelocity);
+            }},
+            {GLFW_KEY_LEFT_CONTROL, [this](int action, int mods) {
+                UpdateYTranslation(action, mMoveVelocity);
+            }},
+            {GLFW_KEY_W, [this](int action, int mods) {
+                UpdateZTranslation(action, -mMoveVelocity);
+            }},
+            {GLFW_KEY_S, [this](int action, int mods) {
+                UpdateZTranslation(action, mMoveVelocity);
+            }},
+            {GLFW_KEY_LEFT, [this](int action, int mods) {
+                UpdateYRotation(action, sPI / 2);
+            }},
+            {GLFW_KEY_RIGHT, [this](int action, int mods) {
+                UpdateYRotation(action, -sPI / 2);
+            }},
+        };
+
+        return true;
     }
 
     virtual bool OnUpdate(FrameDuration elapsedTime) override

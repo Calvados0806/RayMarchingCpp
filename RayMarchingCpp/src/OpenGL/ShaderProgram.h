@@ -2,13 +2,14 @@
 
 #include <string_view>
 #include <unordered_map>
+#include <memory>
 
 namespace OpenGL {
 
     class ShaderProgram {
     public:
         ShaderProgram() = default;
-        ShaderProgram(const std::string_view vertexShaderPath, const std::string_view fragmentShaderPath);
+        ShaderProgram(const std::string_view vertexShaderSrc, const std::string_view fragmentShaderSrc);
 
         void Bind() const;
         void Unbind() const;
@@ -18,6 +19,8 @@ namespace OpenGL {
         void SetUniform2f(const std::string_view name, float v1, float v2);
         void SetUniform3f(const std::string_view name, float v1, float v2, float v3);
         void SetUniform4f(const std::string_view name, float v1, float v2, float v3, float v4);
+
+        static std::shared_ptr<ShaderProgram> LoadFromFiles(const std::string_view vertexShaderPath, const std::string_view fragmentShaderPath);
     private:
         struct ShaderSources {
             std::string VertexShader;

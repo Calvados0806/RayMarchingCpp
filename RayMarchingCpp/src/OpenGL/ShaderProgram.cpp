@@ -8,13 +8,9 @@
 
 using namespace OpenGL;
 
-ShaderProgram::ShaderProgram(const std::string_view vertexShaderPath, const std::string_view fragmentShaderPath)
+ShaderProgram::ShaderProgram(const std::string_view vertexShaderSrc, const std::string_view fragmentShaderSrc)
 {
-    ShaderSources shaders = LoadShaders(vertexShaderPath, fragmentShaderPath);
-    if (!shaders.LoadStatus) {
-        throw std::runtime_error("Failed to load shaders");
-    }
-    mOpenGLID = CreateShader(shaders.VertexShader, shaders.FragmentShader);
+    mOpenGLID = CreateShader(vertexShaderSrc, fragmentShaderSrc);
 }
 
 void ShaderProgram::Bind() const
@@ -54,6 +50,15 @@ void OpenGL::ShaderProgram::SetUniform4f(const std::string_view name, float v1, 
 {
     int location = GetUniformLocation(name);
     GLCall(glUniform4f(location, v1, v2, v3, v4));
+}
+
+std::shared_ptr<ShaderProgram> ShaderProgram::LoadFromFiles(const std::string_view vertexShaderPath, const std::string_view fragmentShaderPath)
+{
+    ShaderSources shaders = LoadShaders(vertexShaderPath, fragmentShaderPath);
+    if (!shaders.LoadStatus) {
+        return nullptr;
+    }
+    return std::make_shared<ShaderProgram>(shaders.VertexShader, shaders.FragmentShader);
 }
 
 int ShaderProgram::GetUniformLocation(const std::string_view name) const
