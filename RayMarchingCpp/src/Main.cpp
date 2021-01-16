@@ -100,34 +100,35 @@ protected:
         shader = *shader_ptr;
         shader.Bind();
         shader.SetUniform2f("u_Resolution", static_cast<float>(mWidth), static_cast<float>(mHeight));
-
-        mLightPos.x() += std::sin(40) * 3;
-        mLightPos.y() += std::cos(40) * 3;
+        shader.SetUniform4f("u_SphereObj", mSphereCoords.x(), mSphereCoords.y(), mSphereCoords.z(), 1.0f);
+        shader.SetUniform1f("u_PlaneObj", mPlaneCoord.y());
+        shader.SetUniform3f("u_LightPos", mLightPos.x(), mLightPos.y(), mLightPos.z());
+        shader.SetUniform4f("u_CubeObj", mCubeCoords.x(), mCubeCoords.y(), mCubeCoords.z(), 0.75);
 
         mKeyHandlers = {
             {GLFW_KEY_D, [this](int action, int mods) {
-                UpdateXTranslation(action, -mMoveVelocity);
-            }},
-            {GLFW_KEY_A, [this](int action, int mods) {
                 UpdateXTranslation(action, mMoveVelocity);
             }},
-            {GLFW_KEY_LEFT_SHIFT, [this](int action, int mods) {
-                UpdateYTranslation(action, -mMoveVelocity);
+            {GLFW_KEY_A, [this](int action, int mods) {
+                UpdateXTranslation(action, -mMoveVelocity);
             }},
-            {GLFW_KEY_LEFT_CONTROL, [this](int action, int mods) {
+            {GLFW_KEY_LEFT_SHIFT, [this](int action, int mods) {
                 UpdateYTranslation(action, mMoveVelocity);
             }},
-            {GLFW_KEY_W, [this](int action, int mods) {
-                UpdateZTranslation(action, -mMoveVelocity);
+            {GLFW_KEY_LEFT_CONTROL, [this](int action, int mods) {
+                UpdateYTranslation(action, -mMoveVelocity);
             }},
-            {GLFW_KEY_S, [this](int action, int mods) {
+            {GLFW_KEY_W, [this](int action, int mods) {
                 UpdateZTranslation(action, mMoveVelocity);
             }},
+            {GLFW_KEY_S, [this](int action, int mods) {
+                UpdateZTranslation(action, -mMoveVelocity);
+            }},
             {GLFW_KEY_LEFT, [this](int action, int mods) {
-                UpdateYRotation(action, sPI / 2);
+                UpdateYRotation(action, -sPI / 2);
             }},
             {GLFW_KEY_RIGHT, [this](int action, int mods) {
-                UpdateYRotation(action, -sPI / 2);
+                UpdateYRotation(action, sPI / 2);
             }},
         };
 
@@ -138,19 +139,15 @@ protected:
     {
         float elapsed = elapsedTime.count();
 
-        Math::Mat4 viewMatrix = Math::Mat4::CreateTranslation(mTranslation.x() * elapsed,
-                                                              mTranslation.y() * elapsed,
-                                                              mTranslation.z() * elapsed);
-        viewMatrix = viewMatrix.Dot(Math::Mat4::CreateRotationY(mRotation.y() * elapsed));
+        Math::Vec3 translation = mTranslation * elapsed;
+        Math::Vec3 rotation = mRotation * elapsed;
 
-        mSphereCoords = mSphereCoords.Dot(viewMatrix);
-        mLightPos = mLightPos.Dot(viewMatrix);
-        mPlaneCoord = mPlaneCoord.Dot(viewMatrix);
+        mCameraRotationY += rotation.y();
+        mCameraPos = mCameraPos + translation.RotateY(mCameraRotationY);
 
         shader.Bind();
-        shader.SetUniform4f("u_SphereObj", mSphereCoords.x(), mSphereCoords.y(), mSphereCoords.z(), 1.0f);
-        shader.SetUniform1f("u_PlaneObj", mPlaneCoord.y());
-        shader.SetUniform3f("u_LightPos", mLightPos.x(), mLightPos.y(), mLightPos.z());
+        shader.SetUniform3f("u_CameraPos", mCameraPos.x(), mCameraPos.y(), mCameraPos.z());
+        shader.SetUniform1f("u_CameraRotY", mCameraRotationY);
         mRenderer.Draw(vao, ibo, shader);
 
         return true;
@@ -179,10 +176,14 @@ private:
 
     Math::Vec4 mSphereCoords = { 0.0f, 1.0f, 6.0f, 1.0f };
     Math::Vec4 mPlaneCoord   = { 0.0f, 0.0f, 0.0f, 1.0f };
-    Math::Vec4 mLightPos     = { 0.0f, 5.0f, 6.0f, 1.0f };
+    Math::Vec4 mLightPos     = { (float)std::sin(40)*3, 5.0f + (float)std::cos(40)*3, 6.0f, 1.0f };
+    Math::Vec4 mCubeCoords   = { -3.0f, 0.75f, 6.0f, 1.0f };
 
-    Math::Vec4 mTranslation = { 0.0f, 0.0f, 0.0f, 0.0f };
-    Math::Vec4 mRotation    = { 0.0f, 0.0f, 0.0f, 0.0f };
+    Math::Vec4 mCameraPos = { 0.0f, 1.0f, 0.0f, 1.0f };
+    float mCameraRotationY = 0.0f;
+
+    Math::Vec3 mTranslation = { 0.0f, 0.0f, 0.0f };
+    Math::Vec3 mRotation    = { 0.0f, 0.0f, 0.0f };
     float mMoveVelocity     = 7.5f;
 };
 
