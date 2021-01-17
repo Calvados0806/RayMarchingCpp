@@ -10,6 +10,8 @@
 
 #include <functional>
 
+#include <imgui.h>
+
 class RayMarchingWindow : public Window {
     using Window::Window;
 public:
@@ -148,9 +150,27 @@ protected:
         shader.Bind();
         shader.SetUniform3f("u_CameraPos", mCameraPos.x(), mCameraPos.y(), mCameraPos.z());
         shader.SetUniform1f("u_CameraRotY", mCameraRotationY);
+
+        shader.SetUniform4f("u_SphereObj", mSphereCoords.x(), mSphereCoords.y(), mSphereCoords.z(), mSphereCoords.w());
+        shader.SetUniform1f("u_PlaneObj", mPlaneCoord.y());
+        shader.SetUniform3f("u_LightPos", mLightPos.x(), mLightPos.y(), mLightPos.z());
+        shader.SetUniform4f("u_CubeObj", mCubeCoords.x(), mCubeCoords.y(), mCubeCoords.z(), mCubeCoords.w());
         mRenderer.Draw(vao, ibo, shader);
 
         return true;
+    }
+
+    virtual void OnImGuiUpdate()
+    {
+        ImGui::Begin("Sphere object edit");
+
+        ImGui::SliderFloat("x", &mSphereCoords.x(), -10.0f, 10.0f);
+        ImGui::SliderFloat("y", &mSphereCoords.y(), -10.0f, 10.0f);
+        ImGui::SliderFloat("z", &mSphereCoords.z(), -10.0f, 10.0f);
+        ImGui::SliderFloat("radius", &mSphereCoords.w(), 0.0f, 5.0f);
+
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::End();
     }
 
     virtual void OnKeyEvent(int key, int action, int mods) override
@@ -177,7 +197,7 @@ private:
     Math::Vec4 mSphereCoords = { 0.0f, 1.0f, 6.0f, 1.0f };
     Math::Vec4 mPlaneCoord   = { 0.0f, 0.0f, 0.0f, 1.0f };
     Math::Vec4 mLightPos     = { (float)std::sin(40)*3, 5.0f + (float)std::cos(40)*3, 6.0f, 1.0f };
-    Math::Vec4 mCubeCoords   = { -3.0f, 0.75f, 6.0f, 1.0f };
+    Math::Vec4 mCubeCoords   = { -3.0f, 0.75f, 6.0f, 0.75f };
 
     Math::Vec4 mCameraPos = { 0.0f, 1.0f, 0.0f, 1.0f };
     float mCameraRotationY = 0.0f;

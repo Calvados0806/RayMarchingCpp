@@ -53,6 +53,7 @@ public:
 protected:
     virtual bool OnCreate();
     virtual bool OnUpdate(FrameDuration elapsedTime);
+    virtual void OnImGuiUpdate();
 protected:
     GLFWwindow* mWindow;
     OpenGL::Renderer mRenderer;

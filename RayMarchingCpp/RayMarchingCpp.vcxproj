@@ -59,7 +59,7 @@
       <PreprocessorDefinitions>GLEW_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)vendor\glfw-3.3.2.bin.WIN64\include;$(ProjectDir)vendor\glew-2.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)vendor\glfw-3.3.2.bin.WIN64\include;$(ProjectDir)vendor\imgui-1.79;$(ProjectDir)vendor\glew-2.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -105,6 +105,12 @@
     <ClCompile Include="src\OpenGL\VertexArray.cpp" />
     <ClCompile Include="src\OpenGL\VertexBuffer.cpp" />
     <ClCompile Include="src\Window.cpp" />
+    <ClCompile Include="vendor\imgui-1.79\imgui.cpp" />
+    <ClCompile Include="vendor\imgui-1.79\imgui_demo.cpp" />
+    <ClCompile Include="vendor\imgui-1.79\imgui_draw.cpp" />
+    <ClCompile Include="vendor\imgui-1.79\imgui_impl_glfw.cpp" />
+    <ClCompile Include="vendor\imgui-1.79\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="vendor\imgui-1.79\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Fragment.shader" />
@@ -126,6 +132,14 @@
     <ClInclude Include="src\OpenGL\VertexBuffer.h" />
     <ClInclude Include="src\OpenGL\VertexLayout.h" />
     <ClInclude Include="src\Window.h" />
+    <ClInclude Include="vendor\imgui-1.79\imconfig.h" />
+    <ClInclude Include="vendor\imgui-1.79\imgui.h" />
+    <ClInclude Include="vendor\imgui-1.79\imgui_impl_glfw.h" />
+    <ClInclude Include="vendor\imgui-1.79\imgui_impl_opengl3.h" />
+    <ClInclude Include="vendor\imgui-1.79\imgui_internal.h" />
+    <ClInclude Include="vendor\imgui-1.79\imstb_rectpack.h" />
+    <ClInclude Include="vendor\imgui-1.79\imstb_textedit.h" />
+    <ClInclude Include="vendor\imgui-1.79\imstb_truetype.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -363,3 +363,4 @@ FodyWeavers.xsd
 
 bin/
 bin-intermediate/
+imgui.ini
