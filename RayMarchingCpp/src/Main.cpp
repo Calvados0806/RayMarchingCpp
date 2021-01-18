@@ -160,14 +160,44 @@ protected:
         return true;
     }
 
+    enum Object {
+        None,
+        Sphere,
+        Cube
+    };
+
     virtual void OnImGuiUpdate()
     {
-        ImGui::Begin("Sphere object edit");
+        static Object sCurrentObject = None;
+        ImGui::Begin("Object Editor");
 
-        ImGui::SliderFloat("x", &mSphereCoords.x(), -10.0f, 10.0f);
-        ImGui::SliderFloat("y", &mSphereCoords.y(), -10.0f, 10.0f);
-        ImGui::SliderFloat("z", &mSphereCoords.z(), -10.0f, 10.0f);
-        ImGui::SliderFloat("radius", &mSphereCoords.w(), 0.0f, 5.0f);
+        if (ImGui::Button("Sphere")) {
+            sCurrentObject = Sphere;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Cube")) {
+            sCurrentObject = Cube;
+        }
+
+        switch (sCurrentObject)
+        {
+        case Sphere: {
+            ImGui::SliderFloat("x", &mSphereCoords.x(), -10.0f, 10.0f);
+            ImGui::SliderFloat("y", &mSphereCoords.y(), -10.0f, 10.0f);
+            ImGui::SliderFloat("z", &mSphereCoords.z(), -10.0f, 10.0f);
+            ImGui::SliderFloat("radius", &mSphereCoords.w(), 0.0f, 5.0f);
+            break;
+        }
+        case Cube: {
+            ImGui::SliderFloat("x", &mCubeCoords.x(), -10.0f, 10.0f);
+            ImGui::SliderFloat("y", &mCubeCoords.y(), -10.0f, 10.0f);
+            ImGui::SliderFloat("z", &mCubeCoords.z(), -10.0f, 10.0f);
+            ImGui::SliderFloat("size", &mCubeCoords.w(), 0.0f, 5.0f);
+            break;
+        }
+        default:
+            break;
+        }
 
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();
