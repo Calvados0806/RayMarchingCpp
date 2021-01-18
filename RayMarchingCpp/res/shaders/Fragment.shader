@@ -1,6 +1,6 @@
 #version 330 core
 #define MAX_STEPS 100
-#define MAX_DISTANCE 1000.0
+#define MAX_DISTANCE 50.0
 #define SURFACE_DISTANCE 0.001
 
 out vec4 color;
@@ -62,26 +62,6 @@ float GetSceneDistance(vec3 cameraPos)
     return GetMin();
 }
 
-float RayMarch(vec3 ro, vec3 rd, out vec3 pointPos)
-{
-    float totalDistance = 0.0;
-    vec3 currCameraPos;
-
-    for (int i = 0; i < MAX_STEPS; i++) {
-        // One step in direction of ray
-        currCameraPos = ro + rd * totalDistance;
-        float sceneDistance = GetSceneDistance(currCameraPos);
-        totalDistance += sceneDistance;
-
-        if (totalDistance > MAX_DISTANCE || sceneDistance < SURFACE_DISTANCE) {
-            break;
-        }
-    }
-    pointPos = currCameraPos;
-
-    return totalDistance;
-}
-
 vec3 GetNormal(vec3 pointPos)
 {
     float dist = GetSceneDistance(pointPos);
@@ -95,14 +75,46 @@ vec3 GetNormal(vec3 pointPos)
     return normalize(normal);
 }
 
-float GetLight(vec3 pointPos)
+vec3 GetLight(vec3 pointPos)
 {
     vec3 lightPos = u_LightPos;
     vec3 lightDir = normalize(lightPos - pointPos);
     vec3 pointNormal = GetNormal(pointPos);
 
     float diffuse = clamp(dot(pointNormal, lightDir) * 0.5 + 0.5, 0.0, 1.0);
-    return diffuse;
+    return vec3(diffuse);
+}
+
+// Will generate fog effect
+vec3 GetDistanceColor(float totalDistance)
+{
+    return vec3(clamp(1.0 - totalDistance / MAX_DISTANCE, 0, 1));
+}
+
+vec4 RayMarch(vec3 ro, vec3 rd)
+{
+    float totalDistance = 0.0;
+    vec3 currCameraPos;
+
+    for (int i = 0; i < MAX_STEPS; i++) {
+        // One step in direction of ray
+        currCameraPos = ro + rd * totalDistance;
+        float sceneDistance = GetSceneDistance(currCameraPos);
+        totalDistance += sceneDistance;
+
+        if (totalDistance > MAX_DISTANCE) {
+            return vec4(0.1, 0.1, 0.1, 1.0);
+        }
+
+        if (sceneDistance < SURFACE_DISTANCE) {
+            break;
+        }
+    }
+
+    vec3 color = GetLight(currCameraPos);
+    // Apply fog effect
+    //color *= GetDistanceColor(totalDistance);
+    return vec4(color, 1.0);
 }
 
 void main()
@@ -116,10 +128,5 @@ void main()
     rd.xz *= Rotate(-u_CameraRotY);
     rd = normalize(rd);
 
-    vec3 pointPos;
-    float pointDist = RayMarch(ro, rd, pointPos);
-
-    float diffuse = GetLight(pointPos);
-
-    color = vec4(vec3(diffuse), 1.0);
+    color = RayMarch(ro, rd);
 }
