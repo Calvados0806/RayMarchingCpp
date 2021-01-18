@@ -14,24 +14,13 @@ uniform vec4 u_CubeObj;
 
 uniform vec3 u_CameraPos;
 uniform float u_CameraRotY;
-
-const int kObjects = 3;
-float gDistances[kObjects];
+uniform int u_EnableShadows;
 
 mat2 Rotate(float a)
 {
     float c = cos(a);
     float s = sin(a);
     return mat2(c, -s, s, c);
-}
-
-float GetMin()
-{
-    float res = gDistances[0];
-    for (int i = 1; i < kObjects; i++) {
-        res = min(res, gDistances[i]);
-    }
-    return res;
 }
 
 float SphereDist(vec3 cameraPos)
@@ -55,11 +44,11 @@ float CubeDist(vec3 cameraPos)
 
 float GetSceneDistance(vec3 cameraPos)
 {
-    gDistances[0] = SphereDist(cameraPos);
-    gDistances[1] = PlaneDist(cameraPos);
-    gDistances[2] = CubeDist(cameraPos);
+    float sphereDist = SphereDist(cameraPos);
+    float planeDist  = PlaneDist(cameraPos);
+    float cubeDist   = CubeDist(cameraPos);
 
-    return GetMin();
+    return min(planeDist, min(sphereDist, cubeDist));
 }
 
 vec3 GetNormal(vec3 pointPos)
@@ -108,11 +97,13 @@ vec3 GetLight(vec3 pointPos)
     vec3 pointNormal = GetNormal(pointPos);
 
     float diffuse = clamp(dot(pointNormal, lightDir) * 0.5 + 0.5, 0.0, 1.0);
-    vec3 dummy;
-    float lightDist = RayMarch(pointPos + pointNormal * SURFACE_DISTANCE, lightDir, dummy);
+    if (bool(u_EnableShadows)) {
+        vec3 dummy;
+        float lightDist = RayMarch(pointPos + pointNormal * SURFACE_DISTANCE, lightDir, dummy);
 
-    if (lightDist < length(lightVec)) {
-        diffuse *= 0.2;
+        if (lightDist < length(lightVec)) {
+            diffuse *= 0.2;
+        }
     }
 
     return vec3(diffuse);

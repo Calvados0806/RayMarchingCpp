@@ -52,6 +52,12 @@ void OpenGL::ShaderProgram::SetUniform4f(const std::string_view name, float v1, 
     GLCall(glUniform4f(location, v1, v2, v3, v4));
 }
 
+void OpenGL::ShaderProgram::SetUniformBool(const std::string_view name, bool v)
+{
+    int location = GetUniformLocation(name);
+    GLCall(glUniform1i(location, v));
+}
+
 std::shared_ptr<ShaderProgram> ShaderProgram::LoadFromFiles(const std::string_view vertexShaderPath, const std::string_view fragmentShaderPath)
 {
     ShaderSources shaders = LoadShaders(vertexShaderPath, fragmentShaderPath);

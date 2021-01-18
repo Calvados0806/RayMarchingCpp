@@ -166,6 +166,7 @@ protected:
         shader.Bind();
         shader.SetUniform3f("u_CameraPos", mCameraPos.x(), mCameraPos.y(), mCameraPos.z());
         shader.SetUniform1f("u_CameraRotY", mCameraRotationY);
+        shader.SetUniformBool("u_EnableShadows", mEnableShadows);
 
         for (unsigned int i = 0; i < mShapes.size(); i++) {
             mShapes[i]->PassToShader(shader);
@@ -184,10 +185,9 @@ protected:
             if (ImGui::Button(mEditableObjects[i]->Name().data())) {
                 mCurrentEditableIndex = i;
             }
-            if (i != mEditableObjects.size() - 1) {
-                ImGui::SameLine();
-            }
+            ImGui::SameLine();
         }
+        ImGui::Checkbox("Shadows", &mEnableShadows);
 
         if (mCurrentEditableIndex >= 0 && mCurrentEditableIndex < mEditableObjects.size()) {
             mEditableObjects[mCurrentEditableIndex]->RenderImGuiEditor();
@@ -232,6 +232,7 @@ private:
     float mMoveVelocity     = 7.5f;
 
     int mCurrentEditableIndex = -1;
+    bool mEnableShadows = true;
 };
 
 int main(void)

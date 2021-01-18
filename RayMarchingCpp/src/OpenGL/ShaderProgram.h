@@ -19,6 +19,7 @@ namespace OpenGL {
         void SetUniform2f(const std::string_view name, float v1, float v2);
         void SetUniform3f(const std::string_view name, float v1, float v2, float v3);
         void SetUniform4f(const std::string_view name, float v1, float v2, float v3, float v4);
+        void SetUniformBool(const std::string_view name, bool v);
 
         static std::shared_ptr<ShaderProgram> LoadFromFiles(const std::string_view vertexShaderPath, const std::string_view fragmentShaderPath);
     private:
