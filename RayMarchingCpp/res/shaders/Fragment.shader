@@ -15,6 +15,13 @@ uniform vec4 u_CubeObj;
 uniform vec3 u_CameraPos;
 uniform float u_CameraRotY;
 uniform int u_EnableShadows;
+uniform float u_SmoothMinValue;
+
+float smin(float v1, float v2, float d)
+{
+    float h = clamp(0.5 + 0.5 * (v2 - v1) / d, 0.0, 1.0);
+    return mix(v2, v1, h) - d * h * (1.0 - h);
+}
 
 mat2 Rotate(float a)
 {
@@ -48,7 +55,7 @@ float GetSceneDistance(vec3 cameraPos)
     float planeDist  = PlaneDist(cameraPos);
     float cubeDist   = CubeDist(cameraPos);
 
-    return min(planeDist, min(sphereDist, cubeDist));
+    return smin(planeDist, smin(sphereDist, cubeDist, u_SmoothMinValue), u_SmoothMinValue);
 }
 
 vec3 GetNormal(vec3 pointPos)

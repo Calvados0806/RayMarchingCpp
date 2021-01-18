@@ -167,6 +167,7 @@ protected:
         shader.SetUniform3f("u_CameraPos", mCameraPos.x(), mCameraPos.y(), mCameraPos.z());
         shader.SetUniform1f("u_CameraRotY", mCameraRotationY);
         shader.SetUniformBool("u_EnableShadows", mEnableShadows);
+        shader.SetUniform1f("u_SmoothMinValue", mSmoothMin);
 
         for (unsigned int i = 0; i < mShapes.size(); i++) {
             mShapes[i]->PassToShader(shader);
@@ -188,6 +189,7 @@ protected:
             ImGui::SameLine();
         }
         ImGui::Checkbox("Shadows", &mEnableShadows);
+        ImGui::SliderFloat("Smooth %", &mSmoothMin, 0.0f, 1.0f);
 
         if (mCurrentEditableIndex >= 0 && mCurrentEditableIndex < mEditableObjects.size()) {
             mEditableObjects[mCurrentEditableIndex]->RenderImGuiEditor();
@@ -233,6 +235,7 @@ private:
 
     int mCurrentEditableIndex = -1;
     bool mEnableShadows = true;
+    float mSmoothMin = 0.0f;
 };
 
 int main(void)
