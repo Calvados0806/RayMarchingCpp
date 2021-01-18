@@ -75,23 +75,7 @@ vec3 GetNormal(vec3 pointPos)
     return normalize(normal);
 }
 
-vec3 GetLight(vec3 pointPos)
-{
-    vec3 lightPos = u_LightPos;
-    vec3 lightDir = normalize(lightPos - pointPos);
-    vec3 pointNormal = GetNormal(pointPos);
-
-    float diffuse = clamp(dot(pointNormal, lightDir) * 0.5 + 0.5, 0.0, 1.0);
-    return vec3(diffuse);
-}
-
-// Will generate fog effect
-vec3 GetDistanceColor(float totalDistance)
-{
-    return vec3(clamp(1.0 - totalDistance / MAX_DISTANCE, 0, 1));
-}
-
-vec4 RayMarch(vec3 ro, vec3 rd)
+float RayMarch(vec3 ro, vec3 rd, out vec3 pointPos)
 {
     float totalDistance = 0.0;
     vec3 currCameraPos;
@@ -103,17 +87,51 @@ vec4 RayMarch(vec3 ro, vec3 rd)
         totalDistance += sceneDistance;
 
         if (totalDistance > MAX_DISTANCE) {
-            return vec4(0.1, 0.1, 0.1, 1.0);
+            break;
+            //return 0.1;
         }
 
         if (sceneDistance < SURFACE_DISTANCE) {
             break;
         }
     }
+    pointPos = currCameraPos;
 
-    vec3 color = GetLight(currCameraPos);
+    return totalDistance;
+}
+
+vec3 GetLight(vec3 pointPos)
+{
+    vec3 lightPos = u_LightPos;
+    vec3 lightVec = lightPos - pointPos;
+    vec3 lightDir = normalize(lightVec);
+    vec3 pointNormal = GetNormal(pointPos);
+
+    float diffuse = clamp(dot(pointNormal, lightDir) * 0.5 + 0.5, 0.0, 1.0);
+    vec3 dummy;
+    float lightDist = RayMarch(pointPos + pointNormal * SURFACE_DISTANCE, lightDir, dummy);
+
+    if (lightDist < length(lightVec)) {
+        diffuse *= 0.2;
+    }
+
+    return vec3(diffuse);
+}
+
+// Will generate fog effect
+vec3 GetDistanceDiffuse(float totalDistance)
+{
+    return vec3(clamp(1.0 - totalDistance / MAX_DISTANCE, 0, 1));
+}
+
+vec4 ColorizedRayMarch(vec3 ro, vec3 rd)
+{
+    vec3 pointPos;
+    float distance = RayMarch(ro, rd, pointPos);
+
+    vec3 color = GetLight(pointPos);
     // Apply fog effect
-    //color *= GetDistanceColor(totalDistance);
+    color *= GetDistanceDiffuse(distance);
     return vec4(color, 1.0);
 }
 
@@ -128,5 +146,5 @@ void main()
     rd.xz *= Rotate(-u_CameraRotY);
     rd = normalize(rd);
 
-    color = RayMarch(ro, rd);
+    color = ColorizedRayMarch(ro, rd);
 }
