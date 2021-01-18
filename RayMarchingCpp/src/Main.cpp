@@ -3,6 +3,7 @@
 #include "OpenGL/IndexBuffer.h"
 #include "OpenGL/VertexArray.h"
 #include "OpenGL/VertexLayout.h"
+#include "OpenGL/ShaderSource.h"
 #include "OpenGL/ShaderProgram.h"
 #include "OpenGL/Renderer.h"
 #include "Window.h"
@@ -99,8 +100,10 @@ protected:
 
         ibo = OpenGL::IndexBuffer(mIndices.data(), mIndices.size());
 
-        std::shared_ptr<OpenGL::ShaderProgram> shader_ptr = 
-            OpenGL::ShaderProgram::LoadFromFiles("res/shaders/Vertex.shader", "res/shaders/Fragment.shader");
+        mVShaderSource = OpenGL::ShaderSource::LoadFrom("res/shaders/Vertex.shader");
+        mFShaderSource = OpenGL::ShaderSource::LoadFrom("res/shaders/Fragment.shader");
+
+        std::shared_ptr<OpenGL::ShaderProgram> shader_ptr = OpenGL::ShaderProgram::FromSources(mVShaderSource, mFShaderSource);
 
         if (!shader_ptr) {
             return false;
@@ -218,6 +221,9 @@ private:
     OpenGL::VertexBuffer vbo;
     OpenGL::IndexBuffer ibo;
     OpenGL::ShaderProgram shader;
+
+    std::shared_ptr<OpenGL::ShaderSource> mVShaderSource;
+    std::shared_ptr<OpenGL::ShaderSource> mFShaderSource;
 
     std::unordered_map<int, std::function<void(int, int)>> mKeyHandlers;
 

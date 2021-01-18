@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <memory>
 
+#include "ShaderSource.h"
+
 namespace OpenGL {
 
     class ShaderProgram {
@@ -22,6 +24,7 @@ namespace OpenGL {
         void SetUniformBool(const std::string_view name, bool v);
 
         static std::shared_ptr<ShaderProgram> LoadFromFiles(const std::string_view vertexShaderPath, const std::string_view fragmentShaderPath);
+        static std::shared_ptr<ShaderProgram> FromSources(std::shared_ptr<ShaderSource> vertexShader, std::shared_ptr<ShaderSource> fragmentShader);
     private:
         struct ShaderSources {
             std::string VertexShader;

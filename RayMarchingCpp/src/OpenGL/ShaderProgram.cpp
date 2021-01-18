@@ -67,6 +67,14 @@ std::shared_ptr<ShaderProgram> ShaderProgram::LoadFromFiles(const std::string_vi
     return std::make_shared<ShaderProgram>(shaders.VertexShader, shaders.FragmentShader);
 }
 
+std::shared_ptr<ShaderProgram> OpenGL::ShaderProgram::FromSources(std::shared_ptr<ShaderSource> vertexShader, std::shared_ptr<ShaderSource> fragmentShader)
+{
+    if (!vertexShader || !fragmentShader) {
+        return nullptr;
+    }
+    return std::make_shared<ShaderProgram>(vertexShader->Get(), fragmentShader->Get());
+}
+
 int ShaderProgram::GetUniformLocation(const std::string_view name) const
 {
     auto iter = mUniformCache.find(name.data());
