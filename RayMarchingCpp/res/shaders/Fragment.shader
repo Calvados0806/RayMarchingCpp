@@ -101,7 +101,7 @@ float GetLight(vec3 pointPos)
     vec3 lightDir = normalize(lightPos - pointPos);
     vec3 pointNormal = GetNormal(pointPos);
 
-    float diffuse = clamp(dot(pointNormal, lightDir), 0.0, 1.0);
+    float diffuse = clamp(dot(pointNormal, lightDir) * 0.5 + 0.5, 0.0, 1.0);
     return diffuse;
 }
 

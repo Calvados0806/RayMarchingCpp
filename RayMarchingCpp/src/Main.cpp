@@ -194,6 +194,7 @@ protected:
         }
 
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::Text("\nUse WASD to move through X and Z axes\nUse Shift/Ctrl to move through Y axis\nUse <-/-> (arrows) to rotate the camera");
         ImGui::End();
     }
 
