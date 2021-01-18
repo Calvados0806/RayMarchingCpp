@@ -117,6 +117,8 @@
     <None Include="res\shaders\Vertex.shader" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\CubeShape.h" />
+    <ClInclude Include="src\IImGuiEditable.h" />
     <ClInclude Include="src\Math\Mat2.h" />
     <ClInclude Include="src\Math\Mat3.h" />
     <ClInclude Include="src\Math\Mat4.h" />
@@ -131,6 +133,9 @@
     <ClInclude Include="src\OpenGL\VertexArray.h" />
     <ClInclude Include="src\OpenGL\VertexBuffer.h" />
     <ClInclude Include="src\OpenGL\VertexLayout.h" />
+    <ClInclude Include="src\IShapedObject.h" />
+    <ClInclude Include="src\PlaneShape.h" />
+    <ClInclude Include="src\SphereShape.h" />
     <ClInclude Include="src\Window.h" />
     <ClInclude Include="vendor\imgui-1.79\imconfig.h" />
     <ClInclude Include="vendor\imgui-1.79\imgui.h" />

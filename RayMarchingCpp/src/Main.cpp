@@ -7,10 +7,17 @@
 #include "OpenGL/Renderer.h"
 #include "Window.h"
 #include "Math/Math.h"
+#include "IShapedObject.h"
+#include "IImGuiEditable.h"
+#include "CubeShape.h"
+#include "SphereShape.h"
+#include "PlaneShape.h"
 
 #include <functional>
+#include <vector>
 
 #include <imgui.h>
+
 
 class RayMarchingWindow : public Window {
     using Window::Window;
@@ -100,12 +107,21 @@ protected:
         }
 
         shader = *shader_ptr;
+
+        std::shared_ptr<PlaneShape> plane(new PlaneShape());
+        std::shared_ptr<SphereShape> sphere(new SphereShape());
+        std::shared_ptr<CubeShape> cube(new CubeShape());
+
+        mShapes.push_back(plane);
+        mShapes.push_back(sphere);
+        mShapes.push_back(cube);
+
+        mEditableObjects.push_back(sphere);
+        mEditableObjects.push_back(cube);
+
         shader.Bind();
         shader.SetUniform2f("u_Resolution", static_cast<float>(mWidth), static_cast<float>(mHeight));
-        shader.SetUniform4f("u_SphereObj", mSphereCoords.x(), mSphereCoords.y(), mSphereCoords.z(), 1.0f);
-        shader.SetUniform1f("u_PlaneObj", mPlaneCoord.y());
         shader.SetUniform3f("u_LightPos", mLightPos.x(), mLightPos.y(), mLightPos.z());
-        shader.SetUniform4f("u_CubeObj", mCubeCoords.x(), mCubeCoords.y(), mCubeCoords.z(), 0.75);
 
         mKeyHandlers = {
             {GLFW_KEY_D, [this](int action, int mods) {
@@ -151,52 +167,30 @@ protected:
         shader.SetUniform3f("u_CameraPos", mCameraPos.x(), mCameraPos.y(), mCameraPos.z());
         shader.SetUniform1f("u_CameraRotY", mCameraRotationY);
 
-        shader.SetUniform4f("u_SphereObj", mSphereCoords.x(), mSphereCoords.y(), mSphereCoords.z(), mSphereCoords.w());
-        shader.SetUniform1f("u_PlaneObj", mPlaneCoord.y());
-        shader.SetUniform3f("u_LightPos", mLightPos.x(), mLightPos.y(), mLightPos.z());
-        shader.SetUniform4f("u_CubeObj", mCubeCoords.x(), mCubeCoords.y(), mCubeCoords.z(), mCubeCoords.w());
+        for (unsigned int i = 0; i < mShapes.size(); i++) {
+            mShapes[i]->PassToShader(shader);
+        }
+
         mRenderer.Draw(vao, ibo, shader);
 
         return true;
     }
 
-    enum Object {
-        None,
-        Sphere,
-        Cube
-    };
-
     virtual void OnImGuiUpdate()
     {
-        static Object sCurrentObject = None;
         ImGui::Begin("Object Editor");
 
-        if (ImGui::Button("Sphere")) {
-            sCurrentObject = Sphere;
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Cube")) {
-            sCurrentObject = Cube;
+        for (unsigned int i = 0; i < mEditableObjects.size(); i++) {
+            if (ImGui::Button(mEditableObjects[i]->Name().data())) {
+                mCurrentEditableIndex = i;
+            }
+            if (i != mEditableObjects.size() - 1) {
+                ImGui::SameLine();
+            }
         }
 
-        switch (sCurrentObject)
-        {
-        case Sphere: {
-            ImGui::SliderFloat("x", &mSphereCoords.x(), -10.0f, 10.0f);
-            ImGui::SliderFloat("y", &mSphereCoords.y(), -10.0f, 10.0f);
-            ImGui::SliderFloat("z", &mSphereCoords.z(), -10.0f, 10.0f);
-            ImGui::SliderFloat("radius", &mSphereCoords.w(), 0.0f, 5.0f);
-            break;
-        }
-        case Cube: {
-            ImGui::SliderFloat("x", &mCubeCoords.x(), -10.0f, 10.0f);
-            ImGui::SliderFloat("y", &mCubeCoords.y(), -10.0f, 10.0f);
-            ImGui::SliderFloat("z", &mCubeCoords.z(), -10.0f, 10.0f);
-            ImGui::SliderFloat("size", &mCubeCoords.w(), 0.0f, 5.0f);
-            break;
-        }
-        default:
-            break;
+        if (mCurrentEditableIndex >= 0 && mCurrentEditableIndex < mEditableObjects.size()) {
+            mEditableObjects[mCurrentEditableIndex]->RenderImGuiEditor();
         }
 
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
@@ -224,10 +218,10 @@ private:
 
     std::unordered_map<int, std::function<void(int, int)>> mKeyHandlers;
 
-    Math::Vec4 mSphereCoords = { 0.0f, 1.0f, 6.0f, 1.0f };
-    Math::Vec4 mPlaneCoord   = { 0.0f, 0.0f, 0.0f, 1.0f };
-    Math::Vec4 mLightPos     = { (float)std::sin(40)*3, 5.0f + (float)std::cos(40)*3, 6.0f, 1.0f };
-    Math::Vec4 mCubeCoords   = { -3.0f, 0.75f, 6.0f, 0.75f };
+    std::vector<std::shared_ptr<IShapedObject>> mShapes;
+    std::vector<std::shared_ptr<IImGuiEditable>> mEditableObjects;
+
+    Math::Vec4 mLightPos = { (float)std::sin(40)*3, 5.0f + (float)std::cos(40)*3, 6.0f, 1.0f };
 
     Math::Vec4 mCameraPos = { 0.0f, 1.0f, 0.0f, 1.0f };
     float mCameraRotationY = 0.0f;
@@ -235,6 +229,8 @@ private:
     Math::Vec3 mTranslation = { 0.0f, 0.0f, 0.0f };
     Math::Vec3 mRotation    = { 0.0f, 0.0f, 0.0f };
     float mMoveVelocity     = 7.5f;
+
+    int mCurrentEditableIndex = -1;
 };
 
 int main(void)
