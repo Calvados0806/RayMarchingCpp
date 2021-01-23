@@ -7,7 +7,7 @@
 
 class SphereShape : public IShapedObject, public IImGuiEditable {
 public:
-    SphereShape() : mCoords(0.0f, 1.0f, 6.0f, 1.0f)
+    SphereShape(Math::Vec4 coords) : mCoords(coords)
     {
     }
 
@@ -24,9 +24,25 @@ public:
         ImGui::SliderFloat("radius", &mCoords.w(), 0.0f, 5.0f);
     }
 
-    virtual std::string_view Name() override
+    virtual std::string_view SectionName() const override
     {
         return "Sphere";
+    }
+
+    virtual std::string UniformsDefinitions() const override
+    {
+        return "uniform vec4 u_SphereObj;\n";
+    }
+    
+protected:
+    virtual std::string Name() const override
+    {
+        return SectionName().data();
+    }
+
+    virtual std::string DistFunctionCode() const override
+    {
+        return "return length(p - u_SphereObj.xyz) - u_SphereObj.w;\n";
     }
 private:
     Math::Vec4 mCoords;

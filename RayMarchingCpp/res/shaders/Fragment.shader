@@ -6,16 +6,14 @@
 out vec4 color;
 
 uniform vec2 u_Resolution;
-// sphere coordinates x, y, z and radius w
-uniform vec4 u_SphereObj;
-uniform float u_PlaneObj;
 uniform vec3 u_LightPos;
-uniform vec4 u_CubeObj;
 
 uniform vec3 u_CameraPos;
 uniform float u_CameraRotY;
 uniform int u_EnableShadows;
 uniform float u_SmoothMinValue;
+
+/*<uniforms>*/
 
 float smin(float v1, float v2, float d)
 {
@@ -30,32 +28,12 @@ mat2 Rotate(float a)
     return mat2(c, -s, s, c);
 }
 
-float SphereDist(vec3 cameraPos)
-{
-    return length(cameraPos - u_SphereObj.xyz) - u_SphereObj.w;
-}
-
-float PlaneDist(vec3 cameraPos)
-{
-    return abs(cameraPos.y - u_PlaneObj);
-}
-
-float CubeDist(vec3 cameraPos)
-{
-    vec3 size = vec3(u_CubeObj.w);
-    vec3 p = cameraPos - u_CubeObj.xyz;
-    vec3 d = abs(p) - size;
-    return min(max(d.x, max(d.y, d.z)), 0.0) +
-        length(max(d, 0.0));
-}
+/*<dist_functions>*/
 
 float GetSceneDistance(vec3 cameraPos)
 {
-    float sphereDist = SphereDist(cameraPos);
-    float planeDist  = PlaneDist(cameraPos);
-    float cubeDist   = CubeDist(cameraPos);
-
-    return smin(planeDist, smin(sphereDist, cubeDist, u_SmoothMinValue), u_SmoothMinValue);
+    /*<scene_dist_code>*/
+    return 0.0f;
 }
 
 vec3 GetNormal(vec3 pointPos)

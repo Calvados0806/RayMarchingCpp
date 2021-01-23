@@ -78,6 +78,9 @@
     <ClCompile Include="src\OpenGL\ShaderSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ShapeRegistrar.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Vertex.shader" />
@@ -169,6 +172,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\OpenGL\ShaderSource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ShapeRegistrar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

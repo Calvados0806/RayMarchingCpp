@@ -7,7 +7,7 @@
 
 class CubeShape : public IShapedObject, public IImGuiEditable {
 public:
-    CubeShape() : mCoords(-3.0f, 0.75f, 6.0f, 0.75f)
+    CubeShape(Math::Vec4 coords) : mCoords(coords)
     {
     }
 
@@ -24,9 +24,29 @@ public:
         ImGui::SliderFloat("size", &mCoords.w(), 0.0f, 5.0f);
     }
 
-    virtual std::string_view Name() override
+    virtual std::string_view SectionName() const override
     {
         return "Cube";
+    }
+
+    virtual std::string UniformsDefinitions() const override
+    {
+        return "uniform vec4 u_CubeObj;\n";
+    }
+
+protected:
+    virtual std::string Name() const override
+    {
+        return SectionName().data();
+    }
+
+    virtual std::string DistFunctionCode() const override
+    {
+        return "vec3 size = vec3(u_CubeObj.w);\n\
+                vec3 p1 = p - u_CubeObj.xyz;\n\
+                vec3 d = abs(p1) - size;\n\
+                return min(max(d.x, max(d.y, d.z)), 0.0) +\n\
+                    length(max(d, 0.0));\n";
     }
 private:
     Math::Vec4 mCoords;

@@ -13,6 +13,7 @@
 #include "CubeShape.h"
 #include "SphereShape.h"
 #include "PlaneShape.h"
+#include "ShapeRegistrar.h"
 
 #include <functional>
 #include <vector>
@@ -103,6 +104,21 @@ protected:
         mVShaderSource = OpenGL::ShaderSource::LoadFrom("res/shaders/Vertex.shader");
         mFShaderSource = OpenGL::ShaderSource::LoadFrom("res/shaders/Fragment.shader");
 
+        std::shared_ptr<PlaneShape> plane(new PlaneShape(0.0f));
+        std::shared_ptr<SphereShape> sphere(new SphereShape(Math::Vec4(0.0f, 1.0f, 6.0f, 1.0f)));
+        std::shared_ptr<CubeShape> cube(new CubeShape(Math::Vec4(-3.0f, 0.75f, 6.0f, 0.75f)));
+
+        mShapes.push_back(sphere);
+        mShapes.push_back(cube);
+        mShapes.push_back(plane);
+
+        mEditableObjects.push_back(sphere);
+        mEditableObjects.push_back(cube);
+
+        ShapeRegistrar registrar;
+        registrar.Register(mShapes, *mFShaderSource);
+        registrar.GenerateSceneDistanceFunction(*mFShaderSource);
+
         std::shared_ptr<OpenGL::ShaderProgram> shader_ptr = OpenGL::ShaderProgram::FromSources(mVShaderSource, mFShaderSource);
 
         if (!shader_ptr) {
@@ -110,17 +126,6 @@ protected:
         }
 
         shader = *shader_ptr;
-
-        std::shared_ptr<PlaneShape> plane(new PlaneShape());
-        std::shared_ptr<SphereShape> sphere(new SphereShape());
-        std::shared_ptr<CubeShape> cube(new CubeShape());
-
-        mShapes.push_back(plane);
-        mShapes.push_back(sphere);
-        mShapes.push_back(cube);
-
-        mEditableObjects.push_back(sphere);
-        mEditableObjects.push_back(cube);
 
         shader.Bind();
         shader.SetUniform2f("u_Resolution", static_cast<float>(mWidth), static_cast<float>(mHeight));
@@ -186,7 +191,7 @@ protected:
         ImGui::Begin("Object Editor");
 
         for (unsigned int i = 0; i < mEditableObjects.size(); i++) {
-            if (ImGui::Button(mEditableObjects[i]->Name().data())) {
+            if (ImGui::Button(mEditableObjects[i]->SectionName().data())) {
                 mCurrentEditableIndex = i;
             }
             ImGui::SameLine();
