@@ -7,13 +7,13 @@
 
 class CubeShape : public IShapedObject, public IImGuiEditable {
 public:
-    CubeShape(Math::Vec4 coords) : mCoords(coords)
+    CubeShape(Math::Vec4 coords, const std::string& name) : mCoords(coords), mName(name)
     {
     }
 
     virtual void PassToShader(OpenGL::ShaderProgram& shader) override
     {
-        shader.SetUniform4f("u_CubeObj", mCoords.x(), mCoords.y(), mCoords.z(), mCoords.w());
+        shader.SetUniform4f(Name(), mCoords.x(), mCoords.y(), mCoords.z(), mCoords.w());
     }
 
     virtual void RenderImGuiEditor() override
@@ -26,28 +26,40 @@ public:
 
     virtual std::string_view SectionName() const override
     {
-        return "Cube";
+        return Name();
     }
 
     virtual std::string UniformsDefinitions() const override
     {
-        return "uniform vec4 u_CubeObj;\n";
+        return UNIFORM(vec4, Name());
     }
 
-protected:
-    virtual std::string Name() const override
+    virtual std::string DistFunctionCall(const std::string& fixedParam) const override
     {
-        return SectionName().data();
+        return DistFunctionName()+'(' + fixedParam + ", " + Name() + ')';
     }
 
-    virtual std::string DistFunctionCode() const override
+    static std::string DistFunctionDefinition()
     {
-        return "vec3 size = vec3(u_CubeObj.w);\n\
-                vec3 p1 = p - u_CubeObj.xyz;\n\
-                vec3 d = abs(p1) - size;\n\
-                return min(max(d.x, max(d.y, d.z)), 0.0) +\n\
-                    length(max(d, 0.0));\n";
+        return DIST_FUNCTION_PROTOTYPE(DistFunctionName(), vec3 p, vec4 cubeObj) DIST_FUNCTION_CODE(
+            vec3 size = vec3(cubeObj.w);
+            vec3 p1 = p - cubeObj.xyz;
+            vec3 d = abs(p1) - size;
+            return min(max(d.x, max(d.y, d.z)), 0.0) +
+                    length(max(d, 0.0));
+        );
+    }
+
+    const std::string& Name() const
+    {
+        return mName;
+    }
+private:
+    static std::string DistFunctionName()
+    {
+        return "CubeDist";
     }
 private:
     Math::Vec4 mCoords;
+    const std::string mName;
 };

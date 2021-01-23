@@ -7,30 +7,42 @@
 
 class PlaneShape : public IShapedObject {
 public:
-    PlaneShape(float Y) : mYTranslation(Y)
+    PlaneShape(float Y, const std::string& name) : mYTranslation(Y), mName(name)
     {
     }
 
     virtual void PassToShader(OpenGL::ShaderProgram& shader) override
     {
-        shader.SetUniform1f("u_PlaneObj", mYTranslation);
+        shader.SetUniform1f(Name(), mYTranslation);
     }
 
     virtual std::string UniformsDefinitions() const override
     {
-        return "uniform float u_PlaneObj;\n";
+        return UNIFORM(float, Name());
     }
 
-protected:
-    virtual std::string Name() const override
+    virtual std::string DistFunctionCall(const std::string& fixedParam) const override
     {
-        return "Plane";
+        return DistFunctionName()+'(' + fixedParam + ", " + Name() + ')';
     }
 
-    virtual std::string DistFunctionCode() const override
+    static std::string DistFunctionDefinition()
     {
-        return "return abs(p.y - u_PlaneObj);\n";
+        return DIST_FUNCTION_PROTOTYPE(DistFunctionName(), vec3 p, float planeObj) DIST_FUNCTION_CODE(
+            return abs(p.y - planeObj);
+        );
+    }
+
+    const std::string& Name() const
+    {
+        return mName;
+    }
+private:
+    static std::string DistFunctionName()
+    {
+        return "PlaneDist";
     }
 private:
     float mYTranslation;
+    const std::string mName;
 };

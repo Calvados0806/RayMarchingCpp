@@ -104,9 +104,9 @@ protected:
         mVShaderSource = OpenGL::ShaderSource::LoadFrom("res/shaders/Vertex.shader");
         mFShaderSource = OpenGL::ShaderSource::LoadFrom("res/shaders/Fragment.shader");
 
-        std::shared_ptr<PlaneShape> plane(new PlaneShape(0.0f));
-        std::shared_ptr<SphereShape> sphere(new SphereShape(Math::Vec4(0.0f, 1.0f, 6.0f, 1.0f)));
-        std::shared_ptr<CubeShape> cube(new CubeShape(Math::Vec4(-3.0f, 0.75f, 6.0f, 0.75f)));
+        std::shared_ptr<PlaneShape> plane(new PlaneShape(0.0f, "u_PlaneObj"));
+        std::shared_ptr<SphereShape> sphere(new SphereShape(Math::Vec4(0.0f, 1.0f, 6.0f, 1.0f), "u_SphereObj"));
+        std::shared_ptr<CubeShape> cube(new CubeShape(Math::Vec4(-3.0f, 0.75f, 6.0f, 0.75f), "u_CubeObj"));
 
         mShapes.push_back(sphere);
         mShapes.push_back(cube);
@@ -116,7 +116,11 @@ protected:
         mEditableObjects.push_back(cube);
 
         ShapeRegistrar registrar;
-        registrar.Register(mShapes, *mFShaderSource);
+        registrar.RegisterShape<PlaneShape>(*mFShaderSource);
+        registrar.RegisterShape<SphereShape>(*mFShaderSource);
+        registrar.RegisterShape<CubeShape>(*mFShaderSource);
+
+        registrar.RegisterObjects(mShapes, *mFShaderSource);
         registrar.GenerateSceneDistanceFunction(*mFShaderSource);
 
         std::shared_ptr<OpenGL::ShaderProgram> shader_ptr = OpenGL::ShaderProgram::FromSources(mVShaderSource, mFShaderSource);

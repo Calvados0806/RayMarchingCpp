@@ -7,13 +7,13 @@
 
 class SphereShape : public IShapedObject, public IImGuiEditable {
 public:
-    SphereShape(Math::Vec4 coords) : mCoords(coords)
+    SphereShape(Math::Vec4 coords, const std::string& name) : mCoords(coords), mName(name)
     {
     }
 
     virtual void PassToShader(OpenGL::ShaderProgram& shader) override
     {
-        shader.SetUniform4f("u_SphereObj", mCoords.x(), mCoords.y(), mCoords.z(), mCoords.w());
+        shader.SetUniform4f(Name(), mCoords.x(), mCoords.y(), mCoords.z(), mCoords.w());
     }
 
     virtual void RenderImGuiEditor() override
@@ -26,24 +26,36 @@ public:
 
     virtual std::string_view SectionName() const override
     {
-        return "Sphere";
+        return Name();
     }
 
     virtual std::string UniformsDefinitions() const override
     {
-        return "uniform vec4 u_SphereObj;\n";
-    }
-    
-protected:
-    virtual std::string Name() const override
-    {
-        return SectionName().data();
+        return UNIFORM(vec4, Name());
     }
 
-    virtual std::string DistFunctionCode() const override
+    virtual std::string DistFunctionCall(const std::string& fixedParam) const override
     {
-        return "return length(p - u_SphereObj.xyz) - u_SphereObj.w;\n";
+        return DistFunctionName()+'('+ fixedParam + ", " + Name() + ')';
+    }
+
+    static std::string DistFunctionDefinition()
+    {
+        return DIST_FUNCTION_PROTOTYPE(DistFunctionName(), vec3 p, vec4 sphereObj) DIST_FUNCTION_CODE(
+            return length(p - sphereObj.xyz) - sphereObj.w;
+        );
+    }
+
+    const std::string& Name() const
+    {
+        return mName;
+    }
+private:
+    static std::string DistFunctionName()
+    {
+        return "SphereDist";
     }
 private:
     Math::Vec4 mCoords;
+    const std::string mName;
 };

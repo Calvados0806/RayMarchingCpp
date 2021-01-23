@@ -6,29 +6,21 @@ std::string_view ShapeRegistrar::sUniformMarker = "/*<uniforms>*/";
 std::string_view ShapeRegistrar::sDistFunctionsMarker = "/*<dist_functions>*/";
 std::string_view ShapeRegistrar::sSceneDistFunctionCodeMarker = "/*<scene_dist_code>*/";
 
-void ShapeRegistrar::Register(const std::vector<std::shared_ptr<IShapedObject>>& shapes, OpenGL::ShaderSource& source)
+void ShapeRegistrar::RegisterObjects(const std::vector<std::shared_ptr<IShapedObject>>& objects, OpenGL::ShaderSource& source)
 {
-	for (unsigned int i = 0; i < shapes.size(); i++) {
-		std::shared_ptr<IShapedObject> currShape = shapes[i];
-
-		std::string uniforms = currShape->UniformsDefinitions() + '\n' + sUniformMarker.data();
-		std::string distFunction = currShape->DistFunctionDefinition() + '\n' + sDistFunctionsMarker.data();
+	for (unsigned int i = 0; i < objects.size(); i++) {
+		std::shared_ptr<IShapedObject> obj = objects[i];
+		std::string uniforms = obj->UniformsDefinitions() + '\n' + sUniformMarker.data();
 
 		source.Substitute(sUniformMarker, uniforms);
-		source.Substitute(sDistFunctionsMarker, distFunction);
-
-		mRegisteredFunctions.push_back(currShape->DistFunctionName());
+		mRegisteredFunctions.push_front(obj->DistFunctionCall("cameraPos"));
 	}
 }
 
 void ShapeRegistrar::GenerateSceneDistanceFunction(OpenGL::ShaderSource& source)
 {
 	if (!mRegisteredFunctions.empty()) {
-		std::stack<std::string> functionStack;
-
-		for (auto rit = mRegisteredFunctions.rbegin(); rit != mRegisteredFunctions.rend(); rit++) {
-			functionStack.push((*rit) + "(cameraPos)");
-		}
+		std::stack<std::string> functionStack(mRegisteredFunctions);
 
 		while (true) {
 			std::string func1 = functionStack.top();

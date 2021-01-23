@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <deque>
 #include <memory>
 #include <string_view>
 
@@ -9,10 +9,16 @@
 
 class ShapeRegistrar {
 public:
-	void Register(const std::vector<std::shared_ptr<IShapedObject>>& shapes, OpenGL::ShaderSource& source);
+	template <typename ShapeType>
+	void RegisterShape(OpenGL::ShaderSource& source)
+	{
+		source.Substitute(sDistFunctionsMarker, ShapeType::DistFunctionDefinition() + '\n' + sDistFunctionsMarker.data());
+	}
+
+	void RegisterObjects(const std::vector<std::shared_ptr<IShapedObject>>& objects, OpenGL::ShaderSource& source);
 	void GenerateSceneDistanceFunction(OpenGL::ShaderSource& source);
 private:
-	std::vector<std::string> mRegisteredFunctions;
+	std::deque<std::string> mRegisteredFunctions;
 	static std::string_view sUniformMarker;
 	static std::string_view sDistFunctionsMarker;
 	static std::string_view sSceneDistFunctionCodeMarker;
