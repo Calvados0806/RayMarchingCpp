@@ -119,6 +119,7 @@
     <None Include="res\shaders\Vertex.shader" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\CroppedShapeWrapper.h" />
     <ClInclude Include="src\CubeShape.h" />
     <ClInclude Include="src\RayMarchingWindow\IImGuiEditable.h" />
     <ClInclude Include="src\Math\Mat2.h" />

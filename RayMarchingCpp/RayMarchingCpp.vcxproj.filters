@@ -180,5 +180,8 @@
     <ClInclude Include="src\RayMarchingWindow\ShapeRegistrar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\CroppedShapeWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

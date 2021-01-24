@@ -14,9 +14,6 @@
 #include "Math/Math.h"
 #include "IShapedObject.h"
 #include "IImGuiEditable.h"
-#include "CubeShape.h"
-#include "SphereShape.h"
-#include "PlaneShape.h"
 #include "ShapeRegistrar.h"
 
 #include <functional>
