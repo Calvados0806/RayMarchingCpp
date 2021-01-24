@@ -32,58 +32,6 @@ public:
         vao.Delete();
     }
 protected:
-    enum class Coord { X, Y, Z };
-
-    void UpdateTranslation(Coord coord, float shift)
-    {
-        mTranslation[static_cast<unsigned int>(coord)] = shift;
-    }
-
-    void UpdateRotation(Coord coord, float angle)
-    {
-        mRotation[static_cast<unsigned int>(coord)] = angle;
-    }
-
-    void UpdateYRotation(int action, float angle)
-    {
-        if (action == GLFW_PRESS) {
-            UpdateRotation(Coord::Y, angle);
-        }
-        else if (action == GLFW_RELEASE) {
-            UpdateRotation(Coord::Y, 0.0f);
-        }
-    }
-
-    void UpdateXTranslation(int action, float shift)
-    {
-        if (action == GLFW_PRESS) {
-            UpdateTranslation(Coord::X, shift);
-        }
-        else if (action == GLFW_RELEASE) {
-            UpdateTranslation(Coord::X, 0.0f);
-        }
-    }
-
-    void UpdateYTranslation(int action, float shift)
-    {
-        if (action == GLFW_PRESS) {
-            UpdateTranslation(Coord::Y, shift);
-        }
-        else if (action == GLFW_RELEASE) {
-            UpdateTranslation(Coord::Y, 0.0f);
-        }
-    }
-
-    void UpdateZTranslation(int action, float shift)
-    {
-        if (action == GLFW_PRESS) {
-            UpdateTranslation(Coord::Z, shift);
-        }
-        else if (action == GLFW_RELEASE) {
-            UpdateTranslation(Coord::Z, 0.0f);
-        }
-    }
-
     virtual bool OnCreate() override
     {
         mVertices = {
@@ -137,28 +85,28 @@ protected:
 
         mKeyHandlers = {
             {GLFW_KEY_D, [this](int action, int mods) {
-                UpdateXTranslation(action, mMoveVelocity);
+                mCameraDir[0] = (action != GLFW_RELEASE ? mMoveVelocity : 0.0f);
             }},
             {GLFW_KEY_A, [this](int action, int mods) {
-                UpdateXTranslation(action, -mMoveVelocity);
+                mCameraDir[0] = (action != GLFW_RELEASE ? -mMoveVelocity : 0.0f);
             }},
             {GLFW_KEY_LEFT_SHIFT, [this](int action, int mods) {
-                UpdateYTranslation(action, mMoveVelocity);
+                mCameraDir[1] = (action != GLFW_RELEASE ? mMoveVelocity : 0.0f);
             }},
             {GLFW_KEY_LEFT_CONTROL, [this](int action, int mods) {
-                UpdateYTranslation(action, -mMoveVelocity);
+                mCameraDir[1] = (action != GLFW_RELEASE ? -mMoveVelocity : 0.0f);
             }},
             {GLFW_KEY_W, [this](int action, int mods) {
-                UpdateZTranslation(action, mMoveVelocity);
+                mCameraDir[2] = (action != GLFW_RELEASE ? mMoveVelocity : 0.0f);
             }},
             {GLFW_KEY_S, [this](int action, int mods) {
-                UpdateZTranslation(action, -mMoveVelocity);
+                mCameraDir[2] = (action != GLFW_RELEASE ? -mMoveVelocity : 0.0f);
             }},
             {GLFW_KEY_LEFT, [this](int action, int mods) {
-                UpdateYRotation(action, -sPI / 2);
+                mRotationY = (action != GLFW_RELEASE ? (-sPI / 2) : 0.0f);
             }},
             {GLFW_KEY_RIGHT, [this](int action, int mods) {
-                UpdateYRotation(action, sPI / 2);
+                mRotationY = (action != GLFW_RELEASE ? (sPI / 2) : 0.0f);
             }},
         };
 
@@ -169,11 +117,13 @@ protected:
     {
         float elapsed = elapsedTime.count();
 
-        Math::Vec3 translation = mTranslation * elapsed;
-        Math::Vec3 rotation = mRotation * elapsed;
+        Math::Vec3 direction = mCameraDir * elapsed;
+        float rotationY = mRotationY * elapsed;
 
-        mCameraRotationY += rotation.y();
-        mCameraPos = mCameraPos + translation.RotateY(mCameraRotationY);
+        mCameraRotationY += rotationY;
+
+        direction = direction.RotateY(mCameraRotationY);
+        mCameraPos = mCameraPos + direction;
 
         shader.Bind();
         shader.SetUniform3f("u_CameraPos", mCameraPos.x(), mCameraPos.y(), mCameraPos.z());
@@ -241,15 +191,15 @@ private:
 
     Math::Vec4 mLightPos = { (float)std::sin(40)*3, 5.0f + (float)std::cos(40)*3, 6.0f, 1.0f };
 
-    Math::Vec4 mCameraPos = { 0.0f, 1.0f, 0.0f, 1.0f };
+    Math::Vec3 mCameraPos  = { 0.0f, 1.0f, 0.0f, 1.0f };
+    Math::Vec3 mCameraDir  = { 0.0f, 0.0f, 0.0f, 1.0f };
     float mCameraRotationY = 0.0f;
 
-    Math::Vec3 mTranslation = { 0.0f, 0.0f, 0.0f };
-    Math::Vec3 mRotation    = { 0.0f, 0.0f, 0.0f };
-    float mMoveVelocity     = 7.5f;
+    float mRotationY    = 0.0f;
+    float mMoveVelocity = 7.5f;
 
     int mCurrentEditableIndex = -1;
-    bool mEnableShadows = true;
+    bool mEnableShadows = false;
     float mSmoothMin = 0.0f;
 };
 
