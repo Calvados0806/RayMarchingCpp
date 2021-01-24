@@ -18,12 +18,12 @@ public:
 
     void Run();
     template <typename WindowType>
-    static std::unique_ptr<Window> Create(const std::string& title, unsigned int width = 640, unsigned int height = 480)
+    static std::unique_ptr<WindowType> Create(const std::string& title, unsigned int width = 640, unsigned int height = 480)
     {
         GLFWwindow* window;
         if (!glfwInit()) {
             std::cerr << "glfwInit() failed\n";
-            return std::unique_ptr<Window>(nullptr);
+            return std::unique_ptr<WindowType>(nullptr);
         }
 
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -35,7 +35,7 @@ public:
         {
             glfwTerminate();
             std::cerr << "glfwCreateWindow() failed\n";
-            return std::unique_ptr<Window>(nullptr);
+            return std::unique_ptr<WindowType>(nullptr);
         }
 
         glfwMakeContextCurrent(window);
@@ -44,9 +44,9 @@ public:
 
         if (glewInit() != GLEW_OK) {
             std::cerr << "glewInit() failed\n";
-            return std::unique_ptr<Window>(nullptr);
+            return std::unique_ptr<WindowType>(nullptr);
         }
-        return std::unique_ptr<Window>(new WindowType(window, title, width, height));
+        return std::unique_ptr<WindowType>(new WindowType(window, title, width, height));
     }
 
     virtual void OnKeyEvent(int key, int action, int mods);

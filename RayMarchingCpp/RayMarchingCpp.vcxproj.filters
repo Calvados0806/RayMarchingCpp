@@ -36,9 +36,6 @@
     <ClCompile Include="src\OpenGL\VertexBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\Math\Vec4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -78,7 +75,10 @@
     <ClCompile Include="src\OpenGL\ShaderSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ShapeRegistrar.cpp">
+    <ClCompile Include="src\RayMarchingWindow\Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\RayMarchingWindow\ShapeRegistrar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -106,9 +106,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\OpenGL\VertexLayout.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Window.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Math\Vec4.h">
@@ -156,12 +153,6 @@
     <ClInclude Include="vendor\imgui-1.79\imgui_impl_opengl3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\IShapedObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\IImGuiEditable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\SphereShape.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -174,7 +165,19 @@
     <ClInclude Include="src\OpenGL\ShaderSource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ShapeRegistrar.h">
+    <ClInclude Include="src\RayMarchingWindow\Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RayMarchingWindow\RayMarchingWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RayMarchingWindow\IImGuiEditable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RayMarchingWindow\IShapedObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\RayMarchingWindow\ShapeRegistrar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

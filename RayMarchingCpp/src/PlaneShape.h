@@ -1,7 +1,7 @@
 #pragma once
 
-#include "IShapedObject.h"
-#include "IImGuiEditable.h"
+#include "RayMarchingWindow/IShapedObject.h"
+#include "RayMarchingWindow/IImGuiEditable.h"
 #include "Math/Math.h"
 #include <imgui.h>
 

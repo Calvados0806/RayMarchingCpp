@@ -59,7 +59,7 @@
       <PreprocessorDefinitions>GLEW_STATIC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)vendor\glfw-3.3.2.bin.WIN64\include;$(ProjectDir)vendor\imgui-1.79;$(ProjectDir)vendor\glew-2.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)vendor\glfw-3.3.2.bin.WIN64\include;$(ProjectDir)vendor\imgui-1.79;$(ProjectDir)src\;$(ProjectDir)vendor\glew-2.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -78,7 +78,7 @@
       <PreprocessorDefinitions>GLEW_STATIC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)vendor\glfw-3.3.2.bin.WIN64\include;$(ProjectDir)vendor\imgui-1.79;$(ProjectDir)vendor\glew-2.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)vendor\glfw-3.3.2.bin.WIN64\include;$(ProjectDir)vendor\imgui-1.79;$(ProjectDir)src\;$(ProjectDir)vendor\glew-2.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -105,8 +105,8 @@
     <ClCompile Include="src\OpenGL\ShaderSource.cpp" />
     <ClCompile Include="src\OpenGL\VertexArray.cpp" />
     <ClCompile Include="src\OpenGL\VertexBuffer.cpp" />
-    <ClCompile Include="src\ShapeRegistrar.cpp" />
-    <ClCompile Include="src\Window.cpp" />
+    <ClCompile Include="src\RayMarchingWindow\ShapeRegistrar.cpp" />
+    <ClCompile Include="src\RayMarchingWindow\Window.cpp" />
     <ClCompile Include="vendor\imgui-1.79\imgui.cpp" />
     <ClCompile Include="vendor\imgui-1.79\imgui_demo.cpp" />
     <ClCompile Include="vendor\imgui-1.79\imgui_draw.cpp" />
@@ -120,7 +120,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\CubeShape.h" />
-    <ClInclude Include="src\IImGuiEditable.h" />
+    <ClInclude Include="src\RayMarchingWindow\IImGuiEditable.h" />
     <ClInclude Include="src\Math\Mat2.h" />
     <ClInclude Include="src\Math\Mat3.h" />
     <ClInclude Include="src\Math\Mat4.h" />
@@ -136,11 +136,12 @@
     <ClInclude Include="src\OpenGL\VertexArray.h" />
     <ClInclude Include="src\OpenGL\VertexBuffer.h" />
     <ClInclude Include="src\OpenGL\VertexLayout.h" />
-    <ClInclude Include="src\IShapedObject.h" />
+    <ClInclude Include="src\RayMarchingWindow\IShapedObject.h" />
     <ClInclude Include="src\PlaneShape.h" />
-    <ClInclude Include="src\ShapeRegistrar.h" />
+    <ClInclude Include="src\RayMarchingWindow\RayMarchingWindow.h" />
+    <ClInclude Include="src\RayMarchingWindow\ShapeRegistrar.h" />
     <ClInclude Include="src\SphereShape.h" />
-    <ClInclude Include="src\Window.h" />
+    <ClInclude Include="src\RayMarchingWindow\Window.h" />
     <ClInclude Include="vendor\imgui-1.79\imconfig.h" />
     <ClInclude Include="vendor\imgui-1.79\imgui.h" />
     <ClInclude Include="vendor\imgui-1.79\imgui_impl_glfw.h" />
