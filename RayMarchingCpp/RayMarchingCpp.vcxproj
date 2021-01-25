@@ -121,6 +121,8 @@
   <ItemGroup>
     <ClInclude Include="src\CroppedShapeWrapper.h" />
     <ClInclude Include="src\CubeShape.h" />
+    <ClInclude Include="src\InterpolatedShapeWrapper.h" />
+    <ClInclude Include="src\IntersectedShapeWrapper.h" />
     <ClInclude Include="src\RayMarchingWindow\IImGuiEditable.h" />
     <ClInclude Include="src\Math\Mat2.h" />
     <ClInclude Include="src\Math\Mat3.h" />
