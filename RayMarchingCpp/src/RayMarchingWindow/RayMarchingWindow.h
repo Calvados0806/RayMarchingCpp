@@ -18,27 +18,32 @@
 
 #include <functional>
 #include <vector>
+#include <array>
 
 #include <imgui.h>
 
 class RayMarchingWindow : public Window {
-protected:
-    template <typename WindowType>
-    friend static std::unique_ptr<WindowType> Window::Create(const std::string& title, unsigned int width, unsigned int height);
-
-    RayMarchingWindow(GLFWwindow* window, const std::string& title, unsigned int width, unsigned int height)
-        : Window(window, title, width, height)
+    using Window::Window;
+    
+    void Init()
     {
         mVShaderSource = OpenGL::ShaderSource::LoadFrom("res/shaders/Vertex.shader");
         mFShaderSource = OpenGL::ShaderSource::LoadFrom("res/shaders/Fragment.shader");
     }
 public:
+    static std::unique_ptr<RayMarchingWindow> Create(const std::string& title, unsigned int width = 640, unsigned int height = 480)
+    {
+        std::unique_ptr<RayMarchingWindow> window(Window::Create<RayMarchingWindow>(title, width, height));
+        window->Init();
+        return std::move(window);
+    }
+
     virtual ~RayMarchingWindow()
     {
-        shader.Delete();
-        ibo.Delete();
-        vbo.Delete();
-        vao.Delete();
+        mShader.Delete();
+        mIbo.Delete();
+        mVbo.Delete();
+        mVao.Delete();
     }
 
     template <typename ShapeType>
@@ -59,20 +64,21 @@ public:
 protected:
     virtual bool OnCreate() override
     {
-        mVertices = {
+        std::array<float, 8> mVertices = {
             -1.0f, -1.0f,
              1.0f, -1.0f,
              1.0f,  1.0f,
             -1.0f,  1.0f
         };
-        mIndices = { 0, 1, 2, 2, 3, 0 };
-        vbo = OpenGL::VertexBuffer(mVertices.data(), mVertices.size() * sizeof(float));
+        std::array<unsigned int, 6> mIndices = { 0, 1, 2, 2, 3, 0 };
+
+        mVbo = OpenGL::VertexBuffer(mVertices.data(), mVertices.size() * sizeof(float));
 
         OpenGL::VertexLayout layout;
         layout.AddAttribute<float>(2);
-        vao.LinkLayout(vbo, layout);
+        mVao.LinkLayout(mVbo, layout);
 
-        ibo = OpenGL::IndexBuffer(mIndices.data(), mIndices.size());
+        mIbo = OpenGL::IndexBuffer(mIndices.data(), mIndices.size());
 
         mRegistrar.RegisterObjects(mShapes, *mFShaderSource);
         mRegistrar.GenerateSceneDistanceFunction(*mFShaderSource);
@@ -83,11 +89,11 @@ protected:
             return false;
         }
 
-        shader = *shader_ptr;
+        mShader = *shader_ptr;
 
-        shader.Bind();
-        shader.SetUniform2f("u_Resolution", static_cast<float>(mWidth), static_cast<float>(mHeight));
-        shader.SetUniform3f("u_LightPos", mLightPos.x(), mLightPos.y(), mLightPos.z());
+        mShader.Bind();
+        mShader.SetUniform2f("u_Resolution", static_cast<float>(mWidth), static_cast<float>(mHeight));
+        mShader.SetUniform3f("u_LightPos", mLightPos.x(), mLightPos.y(), mLightPos.z());
 
         mKeyHandlers = {
             {GLFW_KEY_D, [this](int action, int mods) {
@@ -131,17 +137,17 @@ protected:
         direction = direction.RotateY(mCameraRotationY);
         mCameraPos = mCameraPos + direction;
 
-        shader.Bind();
-        shader.SetUniform3f("u_CameraPos", mCameraPos.x(), mCameraPos.y(), mCameraPos.z());
-        shader.SetUniform1f("u_CameraRotY", mCameraRotationY);
-        shader.SetUniformBool("u_EnableShadows", mEnableShadows);
-        shader.SetUniform1f("u_SmoothMinValue", mSmoothMin);
+        mShader.Bind();
+        mShader.SetUniform3f("u_CameraPos", mCameraPos.x(), mCameraPos.y(), mCameraPos.z());
+        mShader.SetUniform1f("u_CameraRotY", mCameraRotationY);
+        mShader.SetUniformBool("u_EnableShadows", mEnableShadows);
+        mShader.SetUniform1f("u_SmoothMinValue", mSmoothMin);
 
         for (unsigned int i = 0; i < mShapes.size(); i++) {
-            mShapes[i]->PassToShader(shader);
+            mShapes[i]->PassToShader(mShader);
         }
 
-        mRenderer.Draw(vao, ibo, shader);
+        mRenderer.Draw(mVao, mIbo, mShader);
 
         return true;
     }
@@ -179,13 +185,10 @@ protected:
 private:
     static constexpr double sPI = 3.14159265358979323846;
 
-    std::vector<float> mVertices;
-    std::vector<uint32_t> mIndices;
-
-    OpenGL::VertexArray vao;
-    OpenGL::VertexBuffer vbo;
-    OpenGL::IndexBuffer ibo;
-    OpenGL::ShaderProgram shader;
+    OpenGL::VertexArray mVao;
+    OpenGL::VertexBuffer mVbo;
+    OpenGL::IndexBuffer mIbo;
+    OpenGL::ShaderProgram mShader;
 
     std::shared_ptr<OpenGL::ShaderSource> mVShaderSource;
     std::shared_ptr<OpenGL::ShaderSource> mFShaderSource;

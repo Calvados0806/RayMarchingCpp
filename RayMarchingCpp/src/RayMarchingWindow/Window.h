@@ -1,6 +1,7 @@
 #pragma once
 #include "OpenGL/Renderer.h"
-#include <GL/glew.h>
+#include "OpenGL/GLCore.h"
+
 #include <GLFW/glfw3.h>
 
 #include <string>
@@ -9,52 +10,44 @@
 #include <iostream>
 
 class Window {
-protected:
-    Window(GLFWwindow *window, const std::string& title, unsigned int width, unsigned int height);
 public:
     using FrameDuration = std::chrono::duration<float>;
 
     virtual ~Window();
-
     void Run();
+    virtual void OnKeyEvent(int key, int action, int mods);
+private:
+    Window(GLFWwindow *window, const std::string& title, unsigned int width, unsigned int height);
+protected:
     template <typename WindowType>
-    static std::unique_ptr<WindowType> Create(const std::string& title, unsigned int width = 640, unsigned int height = 480)
+    static WindowType* Create(const std::string& title, unsigned int width = 640, unsigned int height = 480)
     {
-        GLFWwindow* window;
-        if (!glfwInit()) {
-            std::cerr << "glfwInit() failed\n";
-            return std::unique_ptr<WindowType>(nullptr);
+        static bool sIsContextInitialized = false;
+
+        if (!sIsContextInitialized) {
+            ASSERT(glfwInit());
+            sIsContextInitialized = true;
         }
 
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
-        if (!window)
-        {
-            glfwTerminate();
-            std::cerr << "glfwCreateWindow() failed\n";
-            return std::unique_ptr<WindowType>(nullptr);
-        }
+        GLFWwindow* window = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+        ASSERT(window);
 
         glfwMakeContextCurrent(window);
 
         glfwSwapInterval(0);
 
-        if (glewInit() != GLEW_OK) {
-            std::cerr << "glewInit() failed\n";
-            return std::unique_ptr<WindowType>(nullptr);
-        }
-        return std::unique_ptr<WindowType>(new WindowType(window, title, width, height));
+        ASSERT(glewInit() == GLEW_OK);
+        return new WindowType(window, title, width, height);
     }
 
-    virtual void OnKeyEvent(int key, int action, int mods);
-protected:
     virtual bool OnCreate();
     virtual bool OnUpdate(FrameDuration elapsedTime);
     virtual void OnImGuiUpdate();
-protected:
+
     GLFWwindow* mWindow;
     OpenGL::Renderer mRenderer;
     unsigned int mWidth;

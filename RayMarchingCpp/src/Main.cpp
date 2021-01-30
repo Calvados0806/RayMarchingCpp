@@ -9,7 +9,7 @@
 
 int main(void)
 {
-    std::unique_ptr<RayMarchingWindow> window = Window::Create<RayMarchingWindow>("Ray Marching", 1280, 720);
+    std::unique_ptr<RayMarchingWindow> window = RayMarchingWindow::Create("Ray Marching", 1280, 720);
 
     auto plane = std::make_shared<PlaneShape>(0.0f, "u_PlaneObj");
 
