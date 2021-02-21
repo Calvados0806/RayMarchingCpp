@@ -1,6 +1,6 @@
 #version 330 core
 #define MAX_STEPS 100
-#define MAX_DISTANCE 100.0
+#define MAX_DISTANCE 150.0
 #define SURFACE_DISTANCE 0.001
 
 out vec4 color;
@@ -13,6 +13,7 @@ uniform float u_CameraRotY;
 uniform int u_EnableShadows;
 uniform float u_SmoothMinValue;
 uniform sampler2D u_NoiseTex;
+uniform float u_Time;
 
 /*<uniforms>*/
 
@@ -75,7 +76,7 @@ float RayMarch(vec3 ro, vec3 rd, out vec3 pointPos)
             //return 0.1;
         }
 
-        if (sceneDistance < SURFACE_DISTANCE) {
+        if (abs(sceneDistance) < SURFACE_DISTANCE) {
             break;
         }
     }

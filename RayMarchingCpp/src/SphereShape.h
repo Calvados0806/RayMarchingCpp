@@ -43,6 +43,7 @@ public:
     {
         return DIST_FUNCTION_PROTOTYPE(DistFunctionName(), vec3 p, vec4 sphereObj) DIST_FUNCTION_CODE(
             vec3 d = p - sphereObj.xyz;
+            d = wrapSpace(d, 25);
             return length(d) - sphereObj.w;
         );
     }

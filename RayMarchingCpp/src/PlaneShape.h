@@ -29,7 +29,8 @@ public:
     static std::string DistFunctionDefinition()
     {
         return DIST_FUNCTION_PROTOTYPE(DistFunctionName(), vec3 p, float planeObj) DIST_FUNCTION_CODE(
-            return abs(p.y - planeObj);
+            p.y -= planeObj;
+            return dot(p, normalize(vec3(0, 1, 0))) - sin(p.x / 10);
         );
     }
 

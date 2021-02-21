@@ -146,8 +146,10 @@
     <ClInclude Include="src\PlaneShape.h" />
     <ClInclude Include="src\RayMarchingWindow\RayMarchingWindow.h" />
     <ClInclude Include="src\RayMarchingWindow\ShapeRegistrar.h" />
+    <ClInclude Include="src\SinSphere.h" />
     <ClInclude Include="src\SphereShape.h" />
     <ClInclude Include="src\RayMarchingWindow\Window.h" />
+    <ClInclude Include="src\VaseShape.h" />
     <ClInclude Include="vendor\imgui-1.79\imconfig.h" />
     <ClInclude Include="vendor\imgui-1.79\imgui.h" />
     <ClInclude Include="vendor\imgui-1.79\imgui_impl_glfw.h" />

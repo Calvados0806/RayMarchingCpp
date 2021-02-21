@@ -5,9 +5,9 @@
 #include "Math/Math.h"
 #include <imgui.h>
 
-class CubeShape : public IShapedObject, public IImGuiEditable {
+class SinSphereShape : public IShapedObject, public IImGuiEditable {
 public:
-    CubeShape(Math::Vec4 coords, const std::string& name) : mCoords(coords), mName(name)
+    SinSphereShape(Math::Vec4 coords, const std::string& name) : mCoords(coords), mName(name)
     {
     }
 
@@ -21,7 +21,7 @@ public:
         ImGui::SliderFloat("x", &mCoords.x(), -10.0f, 10.0f);
         ImGui::SliderFloat("y", &mCoords.y(), -10.0f, 10.0f);
         ImGui::SliderFloat("z", &mCoords.z(), -10.0f, 10.0f);
-        ImGui::SliderFloat("size", &mCoords.w(), 0.0f, 5.0f);
+        ImGui::SliderFloat("radius", &mCoords.w(), 0.0f, 5.0f);
     }
 
     virtual std::string_view SectionName() const override
@@ -36,18 +36,15 @@ public:
 
     virtual std::string DistFunctionCall(const std::string& fixedParam) const override
     {
-        return DistFunctionName()+'(' + fixedParam + ", " + Name() + ')';
+        return DistFunctionName() + '(' + fixedParam + ", " + Name() + ')';
     }
 
     static std::string DistFunctionDefinition()
     {
-        return DIST_FUNCTION_PROTOTYPE(DistFunctionName(), vec3 p, vec4 cubeObj) DIST_FUNCTION_CODE(
-            vec3 size = vec3(cubeObj.w);
-            vec3 p1 = p - cubeObj.xyz;
-            p1 = wrapSpace(p1, 25);
-            vec3 d = abs(p1) - size;
-            return min(max(d.x, max(d.y, d.z)), 0.0) +
-                    length(max(d, 0.0));
+        return DIST_FUNCTION_PROTOTYPE(DistFunctionName(), vec3 p, vec4 sphereObj) DIST_FUNCTION_CODE(
+            vec3 d = p - sphereObj.xyz;
+            d = wrapSpace(d, 25);
+            return (length(d) - sphereObj.w - sin(p.x*40 + u_Time*3)*0.05)*0.5;
         );
     }
 
@@ -58,7 +55,7 @@ public:
 private:
     static std::string DistFunctionName()
     {
-        return "CubeDist";
+        return "SinSphereDist";
     }
 private:
     Math::Vec4 mCoords;

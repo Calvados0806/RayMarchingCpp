@@ -99,6 +99,7 @@ protected:
         mShader.SetUniform2f("u_Resolution", static_cast<float>(mWidth), static_cast<float>(mHeight));
         mShader.SetUniform3f("u_LightPos", mLightPos.x(), mLightPos.y(), mLightPos.z());
         mShader.SetUniform1i("u_NoiseTex", 0);
+        mShader.SetUniform1f("u_Time", 0.0f);
 
         mKeyHandlers = {
             {GLFW_KEY_D, [this](int action, int mods) {
@@ -127,6 +128,8 @@ protected:
             }},
         };
 
+        mStartTime = std::chrono::steady_clock::now();
+
         return true;
     }
 
@@ -147,6 +150,8 @@ protected:
         mShader.SetUniform1f("u_CameraRotY", mCameraRotationY);
         mShader.SetUniformBool("u_EnableShadows", mEnableShadows);
         mShader.SetUniform1f("u_SmoothMinValue", mSmoothMin);
+        mShader.SetUniform1f("u_Time", std::chrono::duration_cast<std::chrono::duration<float, std::ratio<1, 1>>>
+            (std::chrono::steady_clock::now() - mStartTime).count());
 
         for (unsigned int i = 0; i < mShapes.size(); i++) {
             mShapes[i]->PassToShader(mShader);
@@ -204,7 +209,7 @@ private:
     std::vector<std::shared_ptr<IShapedObject>> mShapes;
     std::vector<std::shared_ptr<IImGuiEditable>> mEditableObjects;
 
-    Math::Vec4 mLightPos = { (float)std::sin(40) * 3, 5.0f + (float)std::cos(40) * 3, 6.0f, 1.0f };
+    Math::Vec4 mLightPos = { (float)std::sin(40) * 3, 50.0f + (float)std::cos(40) * 3, 6.0f, 1.0f };
 
     Math::Vec3 mCameraPos = { 0.0f, 1.0f, 0.0f, 1.0f };
     Math::Vec3 mCameraDir = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -218,4 +223,6 @@ private:
     float mSmoothMin = 0.0f;
 
     ShapeRegistrar mRegistrar;
+
+    std::chrono::steady_clock::time_point mStartTime;
 };

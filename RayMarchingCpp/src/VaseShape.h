@@ -5,9 +5,9 @@
 #include "Math/Math.h"
 #include <imgui.h>
 
-class CubeShape : public IShapedObject, public IImGuiEditable {
+class VaseShape : public IShapedObject, public IImGuiEditable {
 public:
-    CubeShape(Math::Vec4 coords, const std::string& name) : mCoords(coords), mName(name)
+    VaseShape(Math::Vec4 coords, const std::string& name) : mCoords(coords), mName(name)
     {
     }
 
@@ -36,18 +36,22 @@ public:
 
     virtual std::string DistFunctionCall(const std::string& fixedParam) const override
     {
-        return DistFunctionName()+'(' + fixedParam + ", " + Name() + ')';
+        return DistFunctionName() + '(' + fixedParam + ", " + Name() + ')';
     }
 
     static std::string DistFunctionDefinition()
     {
         return DIST_FUNCTION_PROTOTYPE(DistFunctionName(), vec3 p, vec4 cubeObj) DIST_FUNCTION_CODE(
+
             vec3 size = vec3(cubeObj.w);
             vec3 p1 = p - cubeObj.xyz;
             p1 = wrapSpace(p1, 25);
+            float scale = mix(1.0f, 4.0f, smoothstep(-cubeObj.w, cubeObj.w, p1.y));
+            p1.xz *= scale;
+            p1.xz *= Rotate(p1.y);
             vec3 d = abs(p1) - size;
-            return min(max(d.x, max(d.y, d.z)), 0.0) +
-                    length(max(d, 0.0));
+            return (min(max(d.x, max(d.y, d.z)), 0.0) +
+                length(max(d, 0.0))) / scale;
         );
     }
 
@@ -58,7 +62,7 @@ public:
 private:
     static std::string DistFunctionName()
     {
-        return "CubeDist";
+        return "VaseShape";
     }
 private:
     Math::Vec4 mCoords;
