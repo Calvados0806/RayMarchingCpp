@@ -30,15 +30,17 @@ int main(void)
     window->RegisterNewShape<CubeShape>();
 
     window->RegisterNewObject(plane);
-    window->RegisterNewObject(croppedCube);
-    window->RegisterNewObject(intersected);
-    window->RegisterNewObject(interpolated);
+    //window->RegisterNewObject(sphere);
+    window->RegisterNewObject(cube);
+    //window->RegisterNewObject(croppedCube);
+    //window->RegisterNewObject(intersected);
+    //window->RegisterNewObject(interpolated);
 
-    window->RegisterEditableObject(sphere);
+    //window->RegisterEditableObject(sphere);
     window->RegisterEditableObject(cube);
-    window->RegisterEditableObject(sphere1);
-    window->RegisterEditableObject(cube1);
-    window->RegisterEditableObject(interpolated);
+    //window->RegisterEditableObject(sphere1);
+    //window->RegisterEditableObject(cube1);
+    //window->RegisterEditableObject(interpolated);
 
     window->Run();
 

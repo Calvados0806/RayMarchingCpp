@@ -10,6 +10,7 @@
 #include "OpenGL/ShaderSource.h"
 #include "OpenGL/ShaderProgram.h"
 #include "OpenGL/Renderer.h"
+#include "OpenGL/Texture.h"
 
 #include "Math/Math.h"
 #include "IShapedObject.h"
@@ -29,6 +30,7 @@ class RayMarchingWindow : public Window {
     {
         mVShaderSource = OpenGL::ShaderSource::LoadFrom("res/shaders/Vertex.shader");
         mFShaderSource = OpenGL::ShaderSource::LoadFrom("res/shaders/Fragment.shader");
+        mNoiseTexture = std::shared_ptr<OpenGL::Texture>(new OpenGL::Texture("res/textures/noise.bmp"));
     }
 public:
     static std::unique_ptr<RayMarchingWindow> Create(const std::string& title, unsigned int width = 640, unsigned int height = 480)
@@ -44,6 +46,7 @@ public:
         mIbo.Delete();
         mVbo.Delete();
         mVao.Delete();
+        mNoiseTexture->Delete();
     }
 
     template <typename ShapeType>
@@ -92,8 +95,10 @@ protected:
         mShader = *shader_ptr;
 
         mShader.Bind();
+        mNoiseTexture->Bind();
         mShader.SetUniform2f("u_Resolution", static_cast<float>(mWidth), static_cast<float>(mHeight));
         mShader.SetUniform3f("u_LightPos", mLightPos.x(), mLightPos.y(), mLightPos.z());
+        mShader.SetUniform1i("u_NoiseTex", 0);
 
         mKeyHandlers = {
             {GLFW_KEY_D, [this](int action, int mods) {
@@ -192,6 +197,7 @@ private:
 
     std::shared_ptr<OpenGL::ShaderSource> mVShaderSource;
     std::shared_ptr<OpenGL::ShaderSource> mFShaderSource;
+    std::shared_ptr<OpenGL::Texture> mNoiseTexture;
 
     std::unordered_map<int, std::function<void(int, int)>> mKeyHandlers;
 

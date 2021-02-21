@@ -28,6 +28,12 @@ void ShaderProgram::Delete() const
     GLCall(glDeleteProgram(mOpenGLID));
 }
 
+void OpenGL::ShaderProgram::SetUniform1i(const std::string_view name, int v)
+{
+    int location = GetUniformLocation(name);
+    GLCall(glUniform1i(location, v));
+}
+
 void OpenGL::ShaderProgram::SetUniform1f(const std::string_view name, float v1)
 {
     int location = GetUniformLocation(name);

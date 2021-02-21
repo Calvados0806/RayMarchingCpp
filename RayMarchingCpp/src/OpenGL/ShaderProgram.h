@@ -17,6 +17,7 @@ namespace OpenGL {
         void Unbind() const;
         void Delete() const;
 
+        void SetUniform1i(const std::string_view name, int v);
         void SetUniform1f(const std::string_view name, float v1);
         void SetUniform2f(const std::string_view name, float v1, float v2);
         void SetUniform3f(const std::string_view name, float v1, float v2, float v3);

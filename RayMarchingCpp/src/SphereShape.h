@@ -42,7 +42,8 @@ public:
     static std::string DistFunctionDefinition()
     {
         return DIST_FUNCTION_PROTOTYPE(DistFunctionName(), vec3 p, vec4 sphereObj) DIST_FUNCTION_CODE(
-            return length(p - sphereObj.xyz) - sphereObj.w;
+            vec3 d = p - sphereObj.xyz;
+            return length(d) - sphereObj.w;
         );
     }
 

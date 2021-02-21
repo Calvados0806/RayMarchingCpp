@@ -1,6 +1,6 @@
 #version 330 core
 #define MAX_STEPS 100
-#define MAX_DISTANCE 50.0
+#define MAX_DISTANCE 100.0
 #define SURFACE_DISTANCE 0.001
 
 out vec4 color;
@@ -12,8 +12,18 @@ uniform vec3 u_CameraPos;
 uniform float u_CameraRotY;
 uniform int u_EnableShadows;
 uniform float u_SmoothMinValue;
+uniform sampler2D u_NoiseTex;
 
 /*<uniforms>*/
+
+vec3 wrapSpace(vec3 distVec, float space) {
+    float hspace = space / 2;
+    float cx = floor(distVec.x / space) / space;
+    float cz = floor(distVec.z / space) / space;
+    float randomShift = texture(u_NoiseTex, vec2(cx, cz)).r - 0.5;
+    distVec.xz = mod(distVec.xz, space) - hspace + randomShift * space * 0.75;
+    return distVec;
+}
 
 float smin(float v1, float v2, float d)
 {
@@ -114,7 +124,6 @@ vec4 ColorizedRayMarch(vec3 ro, vec3 rd)
 void main()
 {
     vec2 uv = (gl_FragCoord.xy - 0.5 * u_Resolution) / u_Resolution.y;
-
     // Camera position
     vec3 ro = u_CameraPos;
     // Camera ray direction
